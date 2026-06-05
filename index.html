@@ -1500,7 +1500,6 @@
         </div>
     </section>
 
-    <!-- Admin Panel (Hidden by default, shown for admin users) -->
     <section class="section" id="adminSection" style="display: none;">
         <div class="section-header">
             <h2><i class="fas fa-cog" style="color: var(--primary);"></i> Admin Dashboard</h2>
@@ -1537,7 +1536,6 @@
                     </tr>
                 </thead>
                 <tbody id="adminUsersTable">
-                    <!-- Populated by JS -->
                 </tbody>
             </table>
         </div>
@@ -1594,7 +1592,6 @@
         </div>
     </footer>
 
-    <!-- Login Modal -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal">
             <button class="modal-close" onclick="closeModal('login')">&times;</button>
@@ -1620,7 +1617,6 @@
         </div>
     </div>
 
-    <!-- Signup Modal -->
     <div class="modal-overlay" id="signupModal">
         <div class="modal">
             <button class="modal-close" onclick="closeModal('signup')">&times;</button>
@@ -1653,12 +1649,13 @@
 
     <script>
         // ==========================================
-        // FIREBASE CONFIGURATION - FREE TIER
+        // FIREBASE REALTIME DATABASE CONFIGURATION
+        // 100% FREE - NO BILLING REQUIRED
         // ==========================================
-        // Replace with your own Firebase config after creating project
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
             authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "YOUR_PROJECT_ID",
             storageBucket: "YOUR_PROJECT_ID.appspot.com",
             messagingSenderId: "YOUR_MESSAGING_ID",
@@ -1679,7 +1676,6 @@
         // AUTHENTICATION FUNCTIONS
         // ==========================================
 
-        // Sign Up
         async function signup() {
             const name = document.getElementById('signupName').value.trim();
             const email = document.getElementById('signupEmail').value.trim();
@@ -1689,7 +1685,6 @@
             const loading = document.getElementById('signupLoading');
             const btn = document.getElementById('signupBtn');
 
-            // Validation
             if (!name || !email || !password) {
                 errorMsg.textContent = 'Please fill all fields';
                 errorMsg.classList.add('show');
@@ -1706,37 +1701,25 @@
             btn.disabled = true;
 
             try {
-                // Create user in Firebase Auth
                 const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                 const user = userCredential.user;
-
-                // Update profile with name
                 await user.updateProfile({ displayName: name });
 
-                // Create user document in Firestore
-                await db.collection('users').doc(user.uid).set({
+                // Create user in Realtime Database
+                await db.ref('users/' + user.uid).set({
                     name: name,
                     email: email,
                     plan: 'free',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: Date.now(),
+                    lastActive: Date.now(),
                     quizScores: [],
                     totalQuizzes: 0,
-                    progress: {
-                        network: 0,
-                        security: 0,
-                        comptia: 0
-                    }
+                    progress: { network: 0, security: 0, comptia: 0 }
                 });
 
                 successMsg.classList.add('show');
                 showToast('Account created successfully!', 'success');
-
-                setTimeout(() => {
-                    closeModal('signup');
-                    successMsg.classList.remove('show');
-                }, 1500);
-
+                setTimeout(() => { closeModal('signup'); successMsg.classList.remove('show'); }, 1500);
             } catch (error) {
                 errorMsg.textContent = error.message;
                 errorMsg.classList.add('show');
@@ -1747,7 +1730,6 @@
             }
         }
 
-        // Login
         async function login() {
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
@@ -1766,20 +1748,18 @@
             btn.disabled = true;
 
             try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                await auth.signInWithEmailAndPassword(email, password);
                 showToast('Welcome back!', 'success');
                 closeModal('login');
             } catch (error) {
                 errorMsg.textContent = 'Invalid email or password';
                 errorMsg.classList.add('show');
-                console.error('Login error:', error);
             } finally {
                 loading.classList.remove('show');
                 btn.disabled = false;
             }
         }
 
-        // Logout
         async function logout() {
             try {
                 await auth.signOut();
@@ -1789,7 +1769,6 @@
             }
         }
 
-        // Auth State Listener
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
@@ -1804,52 +1783,40 @@
         });
 
         // ==========================================
-        // USER DATA FUNCTIONS
+        // REALTIME DATABASE FUNCTIONS
         // ==========================================
 
         async function loadUserData(uid) {
             try {
-                const doc = await db.collection('users').doc(uid).get();
-                if (doc.exists) {
-                    userData = doc.data();
+                const snapshot = await db.ref('users/' + uid).once('value');
+                userData = snapshot.val();
+                if (userData) {
                     isPremium = userData.plan === 'premium' || userData.plan === 'pro';
-
                     // Update last active
-                    await db.collection('users').doc(uid).update({
-                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    await db.ref('users/' + uid + '/lastActive').set(Date.now());
                 }
             } catch (error) {
                 console.error('Error loading user data:', error);
             }
         }
 
-        // Update UI for logged-in user
         function updateUIForUser(user) {
             document.getElementById('navActions').style.display = 'none';
             document.getElementById('userMenu').classList.add('active');
             document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
-
             if (isPremium) {
                 document.getElementById('userBadge').style.display = 'inline-flex';
                 unlockPremiumFeatures();
             } else {
                 document.getElementById('userBadge').style.display = 'none';
             }
-
-            // Update progress bars if data exists
-            if (userData && userData.progress) {
-                updateProgressBars(userData.progress);
-            }
-
-            // Check if admin (simple check - you can make this more secure)
+            if (userData && userData.progress) updateProgressBars(userData.progress);
             if (user.email === 'admin@netforge.com') {
                 document.getElementById('adminSection').style.display = 'block';
                 loadAdminData();
             }
         }
 
-        // Update UI for guest
         function updateUIForGuest() {
             document.getElementById('navActions').style.display = 'flex';
             document.getElementById('userMenu').classList.remove('active');
@@ -1862,7 +1829,6 @@
         // ==========================================
 
         function unlockPremiumFeatures() {
-            // Unlock premium tools
             const premiumTools = ['toolMacLookup', 'toolRouteSum', 'toolAclGen'];
             premiumTools.forEach(id => {
                 const tool = document.getElementById(id);
@@ -1871,16 +1837,12 @@
                     tool.onclick = () => scrollToSection('calculators');
                 }
             });
-
-            // Update lock icons
             document.getElementById('macLockIcon').className = 'fas fa-unlock';
             document.getElementById('macLockIcon').style.color = 'var(--accent)';
             document.getElementById('routeLockIcon').className = 'fas fa-unlock';
             document.getElementById('routeLockIcon').style.color = 'var(--accent)';
             document.getElementById('aclLockIcon').className = 'fas fa-unlock';
             document.getElementById('aclLockIcon').style.color = 'var(--accent)';
-
-            // Unlock CompTIA course
             const btnComptia = document.getElementById('btnComptia');
             if (btnComptia) {
                 btnComptia.innerHTML = '<i class="fas fa-play"></i> Start Course';
@@ -1892,18 +1854,14 @@
             const premiumTools = ['toolMacLookup', 'toolRouteSum', 'toolAclGen'];
             premiumTools.forEach(id => {
                 const tool = document.getElementById(id);
-                if (tool) {
-                    tool.classList.add('premium-locked');
-                }
+                if (tool) tool.classList.add('premium-locked');
             });
-
             document.getElementById('macLockIcon').className = 'fas fa-lock';
             document.getElementById('macLockIcon').style.color = 'var(--warning)';
             document.getElementById('routeLockIcon').className = 'fas fa-lock';
             document.getElementById('routeLockIcon').style.color = 'var(--warning)';
             document.getElementById('aclLockIcon').className = 'fas fa-lock';
             document.getElementById('aclLockIcon').style.color = 'var(--warning)';
-
             const btnComptia = document.getElementById('btnComptia');
             if (btnComptia) {
                 btnComptia.innerHTML = '<i class="fas fa-crown"></i> Upgrade to Pro';
@@ -1922,31 +1880,23 @@
                 scrollToSection('pricing');
                 return;
             }
-            // If premium, redirect to calculators
             scrollToSection('calculators');
         }
 
-        // Upgrade to Pro (simulated - no real payment in free version)
         async function upgradeToPro() {
             if (!currentUser) {
                 showToast('Please log in first', 'error');
                 openModal('login');
                 return;
             }
-
-            // For demo purposes, we'll upgrade directly without payment
-            // In production, you'd integrate Stripe/PayPal here
             try {
-                await db.collection('users').doc(currentUser.uid).update({
+                await db.ref('users/' + currentUser.uid).update({
                     plan: 'premium',
-                    upgradedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    upgradedAt: Date.now()
                 });
-
                 isPremium = true;
                 unlockPremiumFeatures();
                 showToast('Welcome to Pro! All features unlocked.', 'success');
-
-                // Update UI
                 document.getElementById('userBadge').style.display = 'inline-flex';
             } catch (error) {
                 console.error('Upgrade error:', error);
@@ -1975,17 +1925,16 @@
 
         async function saveQuizScore(score, total) {
             if (!currentUser) return;
-
             const percentage = Math.round((score / total) * 100);
             try {
-                await db.collection('users').doc(currentUser.uid).update({
-                    quizScores: firebase.firestore.FieldValue.arrayUnion({
-                        score: score,
-                        total: total,
-                        percentage: percentage,
-                        date: firebase.firestore.FieldValue.serverTimestamp()
-                    }),
-                    totalQuizzes: firebase.firestore.FieldValue.increment(1)
+                const userRef = db.ref('users/' + currentUser.uid);
+                const snapshot = await userRef.once('value');
+                const data = snapshot.val() || {};
+                const scores = data.quizScores || [];
+                scores.push({ score: score, total: total, percentage: percentage, date: Date.now() });
+                await userRef.update({
+                    quizScores: scores,
+                    totalQuizzes: (data.totalQuizzes || 0) + 1
                 });
             } catch (error) {
                 console.error('Error saving score:', error);
@@ -1998,32 +1947,26 @@
 
         async function loadAdminData() {
             try {
-                const usersSnapshot = await db.collection('users').get();
-                const users = [];
+                const snapshot = await db.ref('users').once('value');
+                const users = snapshot.val() || {};
+                const userList = Object.values(users);
                 let premiumCount = 0;
                 let totalQuizAttempts = 0;
-
-                usersSnapshot.forEach(doc => {
-                    const data = doc.data();
-                    users.push(data);
-                    if (data.plan === 'premium' || data.plan === 'pro') premiumCount++;
-                    if (data.totalQuizzes) totalQuizAttempts += data.totalQuizzes;
+                userList.forEach(u => {
+                    if (u.plan === 'premium' || u.plan === 'pro') premiumCount++;
+                    if (u.totalQuizzes) totalQuizAttempts += u.totalQuizzes;
                 });
-
-                // Update stats
-                document.getElementById('adminTotalUsers').textContent = users.length;
+                document.getElementById('adminTotalUsers').textContent = userList.length;
                 document.getElementById('adminPremiumUsers').textContent = premiumCount;
-                document.getElementById('adminFreeUsers').textContent = users.length - premiumCount;
+                document.getElementById('adminFreeUsers').textContent = userList.length - premiumCount;
                 document.getElementById('adminQuizAttempts').textContent = totalQuizAttempts;
-
-                // Update table
                 const tbody = document.getElementById('adminUsersTable');
-                tbody.innerHTML = users.slice(0, 10).map(u => `
+                tbody.innerHTML = userList.slice(0, 10).map(u => `
                     <tr>
                         <td>${u.email}</td>
                         <td><span class="badge ${u.plan === 'premium' ? 'badge-premium' : 'badge-free'}">${u.plan || 'free'}</span></td>
-                        <td>${u.createdAt ? new Date(u.createdAt.toDate()).toLocaleDateString() : 'N/A'}</td>
-                        <td>${u.lastActive ? new Date(u.lastActive.toDate()).toLocaleDateString() : 'N/A'}</td>
+                        <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'N/A'}</td>
+                        <td>${u.lastActive ? new Date(u.lastActive).toLocaleDateString() : 'N/A'}</td>
                         <td>${u.totalQuizzes || 0}</td>
                     </tr>
                 `).join('');
@@ -2040,14 +1983,10 @@
             const toast = document.getElementById('toast');
             const icon = document.getElementById('toastIcon');
             const msg = document.getElementById('toastMessage');
-
             msg.textContent = message;
             toast.className = 'toast show ' + type;
             icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
 
         function openModal(type) {
@@ -2056,7 +1995,6 @@
 
         function closeModal(type) {
             document.getElementById(type + 'Modal').classList.remove('active');
-            // Clear errors
             document.getElementById(type + 'Error')?.classList.remove('show');
             document.getElementById(type + 'Success')?.classList.remove('show');
         }
@@ -2073,7 +2011,7 @@
         }
 
         // ==========================================
-        // CALCULATOR FUNCTIONS (same as before)
+        // CALCULATOR FUNCTIONS
         // ==========================================
 
         function calculateSubnet() {
@@ -2267,10 +2205,7 @@
             clearInterval(timerInterval);
             let score = 0;
             userAnswers.forEach((ans, idx) => { if (ans === quizQuestions[idx].correct) score++; });
-
-            // Save score if logged in
             await saveQuizScore(score, quizQuestions.length);
-
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('quizResults').style.display = 'block';
             document.getElementById('finalScore').textContent = `${score}/${quizQuestions.length}`;
@@ -2335,7 +2270,6 @@
         }
         setInterval(animateTerminal, 4000);
 
-        // Active nav link
         window.addEventListener('scroll', () => {
             const sections = ['tools', 'calculators', 'learn', 'quiz', 'pricing'];
             const scrollPos = window.scrollY + 100;
@@ -2348,12 +2282,10 @@
             });
         });
 
-        // Close modal on overlay click
         document.querySelectorAll('.modal-overlay').forEach(overlay => {
             overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
         });
 
-        // Initialize
         document.addEventListener('DOMContentLoaded', () => {
             createBinaryRain();
             loadQuiz();
