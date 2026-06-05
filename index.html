@@ -1355,7 +1355,7 @@
                         </div>
                         <div class="progress-bar"><div class="progress-fill" id="barNetwork" style="width: 0%"></div></div>
                     </div>
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="scrollToSection('learn')">Start Learning</button>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="scrollToSection('quiz')">Start Learning</button>
                 </div>
             </div>
             <div class="learning-card">
@@ -1379,7 +1379,7 @@
                         </div>
                         <div class="progress-bar"><div class="progress-fill" id="barSecurity" style="width: 0%"></div></div>
                     </div>
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="scrollToSection('learn')">Start Learning</button>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="scrollToSection('quiz')">Start Learning</button>
                 </div>
             </div>
             <div class="learning-card" id="cardComptia">
@@ -1647,20 +1647,87 @@
         </div>
     </div>
 
+    <!-- User Settings Modal -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal" style="max-width: 600px;">
+            <button class="modal-close" onclick="closeModal('settings')">&times;</button>
+            <h2><i class="fas fa-cog" style="color: var(--primary);"></i> User Settings</h2>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1.5rem;">
+                <div>
+                    <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--text-secondary);">Profile</h3>
+                    <div class="form-group">
+                        <label>Name</label>
+                        <input type="text" id="settingsName" readonly style="background: var(--bg-elevated);">
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="settingsEmail" readonly style="background: var(--bg-elevated);">
+                    </div>
+                    <div class="form-group">
+                        <label>Plan</label>
+                        <div id="settingsPlan" style="padding: 10px; background: var(--bg-elevated); border-radius: 8px; font-size: 0.9rem;">
+                            <span class="badge badge-free">Free</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--text-secondary);">Stats</h3>
+
+                    <div style="background: var(--bg-dark); border: 1px solid var(--border); border-radius: 12px; padding: 1rem; margin-bottom: 1rem; text-align: center;">
+                        <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔥</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--warning);">
+                            <span id="streakCount">0</span> days
+                        </div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Current Streak</div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                        <div style="background: var(--bg-dark); border-radius: 8px; padding: 0.8rem; text-align: center;">
+                            <div style="font-size: 1.2rem; font-weight: 700; color: var(--primary);" id="settingsQuizzes">0</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">Quizzes</div>
+                        </div>
+                        <div style="background: var(--bg-dark); border-radius: 8px; padding: 0.8rem; text-align: center;">
+                            <div style="font-size: 1.2rem; font-weight: 700; color: var(--accent);" id="settingsAvgScore">0%</div>
+                            <div style="font-size: 0.7rem; color: var(--text-muted);">Avg Score</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.5rem;">
+                <h3 style="font-size: 1rem; margin-bottom: 1rem; color: var(--text-secondary);">Quiz History</h3>
+                <div id="quizHistory" style="max-height: 200px; overflow-y: auto;">
+                    <p style="color: var(--text-muted); text-align: center; padding: 1rem;">No quizzes taken yet</p>
+                </div>
+            </div>
+
+            <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                <button class="btn btn-danger" style="flex: 1;" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+                <button class="btn btn-outline" style="flex: 1;" onclick="closeModal('settings')">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // ==========================================
         // FIREBASE REALTIME DATABASE CONFIGURATION
         // 100% FREE - NO BILLING REQUIRED
         // ==========================================
-       const firebaseConfig = {
-    apiKey: "AIzaSyA27TjEe6icWgYCO19rPUU_tgm31Kz7mGo",
-    authDomain: "netforge-app.firebaseapp.com",
-    databaseURL: "https://netforge-app-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "netforge-app",
-    storageBucket: "netforge-app.firebasestorage.app",
-    messagingSenderId: "744723973842",
-    appId: "1:744723973842:web:99bcc4553b8d2dbfc50f0b"
-};
+        const firebaseConfig = {
+            apiKey: "AIzaSyA27TjEe6icWgYCO19rPUU_tgm31Kz7mGo",
+            authDomain: "netforge-app.firebaseapp.com",
+            databaseURL: "https://netforge-app-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "netforge-app",
+            storageBucket: "netforge-app.firebasestorage.app",
+            messagingSenderId: "744723973842",
+            appId: "1:744723973842:web:99bcc4553b8d2dbfc50f0b"
+        };
 
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
@@ -1705,13 +1772,16 @@
                 const user = userCredential.user;
                 await user.updateProfile({ displayName: name });
 
-                // Create user in Realtime Database
+                // Create user in Realtime Database with streak
                 await db.ref('users/' + user.uid).set({
                     name: name,
                     email: email,
                     plan: 'free',
                     createdAt: Date.now(),
                     lastActive: Date.now(),
+                    lastLoginDate: new Date().toDateString(),
+                    streak: 1,
+                    longestStreak: 1,
                     quizScores: [],
                     totalQuizzes: 0,
                     progress: { network: 0, security: 0, comptia: 0 }
@@ -1763,6 +1833,7 @@
         async function logout() {
             try {
                 await auth.signOut();
+                closeModal('settings');
                 showToast('Logged out successfully', 'success');
             } catch (error) {
                 console.error('Logout error:', error);
@@ -1783,7 +1854,47 @@
         });
 
         // ==========================================
-        // REALTIME DATABASE FUNCTIONS
+        // STREAK SYSTEM
+        // ==========================================
+
+        async function updateStreak(uid) {
+            try {
+                const snapshot = await db.ref('users/' + uid).once('value');
+                const data = snapshot.val() || {};
+                const lastLogin = data.lastLoginDate;
+                const today = new Date().toDateString();
+                const yesterday = new Date(Date.now() - 86400000).toDateString();
+
+                let streak = data.streak || 1;
+                let longestStreak = data.longestStreak || 1;
+
+                if (lastLogin === today) {
+                    // Already logged in today, no change
+                    return streak;
+                } else if (lastLogin === yesterday) {
+                    // Consecutive day, increase streak
+                    streak += 1;
+                    if (streak > longestStreak) longestStreak = streak;
+                } else {
+                    // Streak broken, reset to 1
+                    streak = 1;
+                }
+
+                await db.ref('users/' + uid).update({
+                    lastLoginDate: today,
+                    streak: streak,
+                    longestStreak: longestStreak
+                });
+
+                return streak;
+            } catch (error) {
+                console.error('Streak update error:', error);
+                return 1;
+            }
+        }
+
+        // ==========================================
+        // USER DATA & SETTINGS
         // ==========================================
 
         async function loadUserData(uid) {
@@ -1792,7 +1903,11 @@
                 userData = snapshot.val();
                 if (userData) {
                     isPremium = userData.plan === 'premium' || userData.plan === 'pro';
-                    // Update last active
+                    // Update streak on login
+                    await updateStreak(uid);
+                    // Refresh data after streak update
+                    const freshSnapshot = await db.ref('users/' + uid).once('value');
+                    userData = freshSnapshot.val();
                     await db.ref('users/' + uid + '/lastActive').set(Date.now());
                 }
             } catch (error) {
@@ -1800,10 +1915,56 @@
             }
         }
 
+        function openSettings() {
+            if (!currentUser || !userData) {
+                showToast('Please log in first', 'error');
+                openModal('login');
+                return;
+            }
+
+            // Fill in settings data
+            document.getElementById('settingsName').value = userData.name || currentUser.displayName || '';
+            document.getElementById('settingsEmail').value = userData.email || currentUser.email || '';
+            document.getElementById('settingsPlan').innerHTML = isPremium ? 
+                '<span class="badge badge-premium">PRO</span>' : 
+                '<span class="badge badge-free">Free</span>';
+            document.getElementById('streakCount').textContent = userData.streak || 0;
+            document.getElementById('settingsQuizzes').textContent = userData.totalQuizzes || 0;
+
+            // Calculate average score
+            const scores = userData.quizScores || [];
+            let avgScore = 0;
+            if (scores.length > 0) {
+                const totalPercentage = scores.reduce((sum, s) => sum + (s.percentage || 0), 0);
+                avgScore = Math.round(totalPercentage / scores.length);
+            }
+            document.getElementById('settingsAvgScore').textContent = avgScore + '%';
+
+            // Show quiz history
+            const historyDiv = document.getElementById('quizHistory');
+            if (scores.length > 0) {
+                historyDiv.innerHTML = scores.slice(-5).reverse().map(s => `
+                    <div style="display: flex; justify-content: space-between; padding: 0.5rem; border-bottom: 1px solid var(--border);">
+                        <span style="font-size: 0.85rem;">${new Date(s.date).toLocaleDateString()}</span>
+                        <span style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">${s.score}/${s.total} (${s.percentage}%)</span>
+                    </div>
+                `).join('');
+            } else {
+                historyDiv.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 1rem;">No quizzes taken yet</p>';
+            }
+
+            openModal('settings');
+        }
+
         function updateUIForUser(user) {
             document.getElementById('navActions').style.display = 'none';
             document.getElementById('userMenu').classList.add('active');
             document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+
+            // Make avatar clickable to open settings
+            document.getElementById('userAvatar').onclick = openSettings;
+            document.getElementById('userAvatar').style.cursor = 'pointer';
+
             if (isPremium) {
                 document.getElementById('userBadge').style.display = 'inline-flex';
                 unlockPremiumFeatures();
@@ -1821,6 +1982,7 @@
             document.getElementById('navActions').style.display = 'flex';
             document.getElementById('userMenu').classList.remove('active');
             document.getElementById('userBadge').style.display = 'none';
+            document.getElementById('userAvatar').onclick = null;
             lockPremiumFeatures();
         }
 
