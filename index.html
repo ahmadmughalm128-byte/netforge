@@ -6,6 +6,10 @@
     <title>NetForge — Network Tools & Cybersecurity Learning Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <style>
         :root {
             --primary: #0ea5e9;
@@ -131,6 +135,40 @@
             align-items: center;
         }
 
+        .user-menu {
+            display: none;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-menu.active { display: flex; }
+
+        .user-avatar {
+            width: 35px; height: 35px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .user-name {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .premium-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            color: white;
+        }
+
         .btn {
             padding: 10px 24px;
             border-radius: 8px;
@@ -168,6 +206,11 @@
         }
 
         .btn-sm { padding: 6px 16px; font-size: 0.8rem; }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
 
         .hero {
             padding: 140px 2rem 80px;
@@ -331,6 +374,16 @@
             transform: translateY(-5px);
             border-color: var(--primary);
             box-shadow: var(--shadow-lg);
+        }
+
+        .tool-card.premium-locked {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .tool-card.premium-locked:hover {
+            transform: none;
+            border-color: var(--border);
         }
 
         .tool-card.premium::after {
@@ -825,6 +878,111 @@
             border-color: var(--primary);
         }
 
+        .error-msg {
+            color: var(--danger);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .error-msg.show { display: block; }
+
+        .success-msg {
+            color: var(--accent);
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+
+        .success-msg.show { display: block; }
+
+        .loading {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .loading.show { display: flex; }
+
+        .spinner {
+            width: 16px; height: 16px;
+            border: 2px solid var(--text-muted);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem; right: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            z-index: 3000;
+            box-shadow: var(--shadow-lg);
+            animation: toastSlide 0.3s;
+        }
+
+        .toast.show { display: flex; }
+
+        .toast.success { border-color: var(--accent); }
+        .toast.error { border-color: var(--danger); }
+
+        @keyframes toastSlide {
+            from { opacity: 0; transform: translateX(100px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .admin-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 900px;
+            display: none;
+        }
+
+        .admin-panel.active { display: block; }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .admin-table th, .admin-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        .admin-table th {
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-table td {
+            color: var(--text-secondary);
+        }
+
+        .admin-table tr:hover td {
+            color: var(--text-primary);
+        }
+
         @media (max-width: 1024px) {
             .hero { grid-template-columns: 1fr; text-align: center; }
             .hero-content p { margin: 0 auto 2rem; }
@@ -839,6 +997,8 @@
             .input-row { grid-template-columns: 1fr; }
             .footer-grid { grid-template-columns: 1fr; }
             .pricing-card.featured { transform: scale(1); }
+            .user-menu { display: none !important; }
+            .nav-actions .btn { display: none; }
         }
 
         ::-webkit-scrollbar { width: 8px; }
@@ -864,6 +1024,12 @@
     <div class="bg-animation"></div>
     <div class="binary-rain" id="binaryRain"></div>
 
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <i class="fas fa-check-circle" id="toastIcon"></i>
+        <span id="toastMessage">Success!</span>
+    </div>
+
     <nav class="navbar">
         <div class="nav-container">
             <a href="#" class="logo">
@@ -877,9 +1043,17 @@
                 <li><a href="#quiz">Quiz</a></li>
                 <li><a href="#pricing">Pricing</a></li>
             </ul>
-            <div class="nav-actions">
+            <div class="nav-actions" id="navActions">
                 <button class="btn btn-outline btn-sm" onclick="openModal('login')">Log In</button>
                 <button class="btn btn-primary btn-sm" onclick="openModal('signup')">Sign Up</button>
+            </div>
+            <div class="user-menu" id="userMenu">
+                <span class="premium-badge" id="userBadge" style="display: none;">PRO</span>
+                <span class="user-name" id="userName"></span>
+                <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()">
+                    <i class="fas fa-user"></i>
+                </div>
+                <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
             </div>
         </div>
     </nav>
@@ -906,7 +1080,7 @@
                     <p>Quiz Questions</p>
                 </div>
                 <div class="stat-item">
-                    <h3>10k+</h3>
+                    <h3 id="userCount">0</h3>
                     <p>Active Users</p>
                 </div>
             </div>
@@ -965,13 +1139,13 @@
                     <i class="fas fa-arrow-right" style="color: var(--primary);"></i>
                 </div>
             </div>
-            <div class="tool-card premium" onclick="showPremiumAlert()">
+            <div class="tool-card premium" id="toolMacLookup" onclick="checkPremiumAccess('mac')">
                 <div class="tool-icon orange"><i class="fas fa-fingerprint"></i></div>
                 <h3>MAC Address Lookup <span class="badge badge-premium">Pro</span></h3>
                 <p>Identify vendor/manufacturer from MAC address OUI. Bulk lookup support for enterprise.</p>
                 <div class="tool-meta">
                     <div class="tool-tags"><span class="tag">OUI</span><span class="tag">Vendor</span></div>
-                    <i class="fas fa-lock" style="color: var(--warning);"></i>
+                    <i class="fas fa-lock" id="macLockIcon" style="color: var(--warning);"></i>
                 </div>
             </div>
             <div class="tool-card" onclick="scrollToSection('calculators')">
@@ -983,13 +1157,13 @@
                     <i class="fas fa-arrow-right" style="color: var(--primary);"></i>
                 </div>
             </div>
-            <div class="tool-card premium" onclick="showPremiumAlert()">
+            <div class="tool-card premium" id="toolRouteSum" onclick="checkPremiumAccess('route')">
                 <div class="tool-icon blue"><i class="fas fa-route"></i></div>
                 <h3>Route Summarization <span class="badge badge-premium">Pro</span></h3>
                 <p>Supernet calculation and route aggregation for efficient routing table management.</p>
                 <div class="tool-meta">
                     <div class="tool-tags"><span class="tag">Supernet</span><span class="tag">Aggregation</span></div>
-                    <i class="fas fa-lock" style="color: var(--warning);"></i>
+                    <i class="fas fa-lock" id="routeLockIcon" style="color: var(--warning);"></i>
                 </div>
             </div>
             <div class="tool-card" onclick="scrollToSection('calculators')">
@@ -1001,13 +1175,13 @@
                     <i class="fas fa-arrow-right" style="color: var(--primary);"></i>
                 </div>
             </div>
-            <div class="tool-card premium" onclick="showPremiumAlert()">
+            <div class="tool-card premium" id="toolAclGen" onclick="checkPremiumAccess('acl')">
                 <div class="tool-icon green"><i class="fas fa-file-code"></i></div>
                 <h3>ACL Generator <span class="badge badge-premium">Pro</span></h3>
                 <p>Generate Cisco ACL rules, iptables, and firewall configs from natural language.</p>
                 <div class="tool-meta">
                     <div class="tool-tags"><span class="tag">Cisco</span><span class="tag">iptables</span></div>
-                    <i class="fas fa-lock" style="color: var(--warning);"></i>
+                    <i class="fas fa-lock" id="aclLockIcon" style="color: var(--warning);"></i>
                 </div>
             </div>
         </div>
@@ -1177,9 +1351,9 @@
                     <div style="margin-top: 1rem;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span style="font-size: 0.85rem; color: var(--text-muted);">Progress</span>
-                            <span style="font-size: 0.85rem; color: var(--primary);">0%</span>
+                            <span style="font-size: 0.85rem; color: var(--primary);" id="progressNetwork">0%</span>
                         </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-bar"><div class="progress-fill" id="barNetwork" style="width: 0%"></div></div>
                     </div>
                     <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="scrollToSection('quiz')">Start Learning</button>
                 </div>
@@ -1201,14 +1375,14 @@
                     <div style="margin-top: 1rem;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span style="font-size: 0.85rem; color: var(--text-muted);">Progress</span>
-                            <span style="font-size: 0.85rem; color: var(--primary);">0%</span>
+                            <span style="font-size: 0.85rem; color: var(--primary);" id="progressSecurity">0%</span>
                         </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-bar"><div class="progress-fill" id="barSecurity" style="width: 0%"></div></div>
                     </div>
                     <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="scrollToSection('quiz')">Start Learning</button>
                 </div>
             </div>
-            <div class="learning-card">
+            <div class="learning-card" id="cardComptia">
                 <div class="learning-header">
                     <h3><i class="fas fa-certificate" style="color: var(--accent); margin-right: 8px;"></i> CompTIA Network+ Prep</h3>
                     <span class="badge badge-premium">Pro</span>
@@ -1225,11 +1399,11 @@
                     <div style="margin-top: 1rem;">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                             <span style="font-size: 0.85rem; color: var(--text-muted);">Progress</span>
-                            <span style="font-size: 0.85rem; color: var(--primary);">0%</span>
+                            <span style="font-size: 0.85rem; color: var(--primary);" id="progressComptia">0%</span>
                         </div>
-                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                        <div class="progress-bar"><div class="progress-fill" id="barComptia" style="width: 0%"></div></div>
                     </div>
-                    <button class="btn btn-success" style="width: 100%; margin-top: 1rem;" onclick="showPremiumAlert()">
+                    <button class="btn btn-success" id="btnComptia" style="width: 100%; margin-top: 1rem;" onclick="checkPremiumAccess('comptia')">
                         <i class="fas fa-crown"></i> Upgrade to Pro
                     </button>
                 </div>
@@ -1305,7 +1479,9 @@
                     <li><i class="fas fa-check"></i> MAC Lookup & ACL Gen</li>
                     <li><i class="fas fa-check"></i> Priority Support</li>
                 </ul>
-                <button class="btn btn-primary" style="width: 100%;" onclick="openModal('signup')">Upgrade Now</button>
+                <button class="btn btn-primary" style="width: 100%;" onclick="upgradeToPro()">
+                    <i class="fas fa-crown"></i> Upgrade Now
+                </button>
             </div>
             <div class="pricing-card">
                 <h3>Team</h3>
@@ -1319,8 +1495,51 @@
                     <li><i class="fas fa-check"></i> API Access</li>
                     <li><i class="fas fa-check"></i> Dedicated Support</li>
                 </ul>
-                <button class="btn btn-outline" style="width: 100%;" onclick="openModal('signup')">Contact Sales</button>
+                <button class="btn btn-outline" style="width: 100%;" onclick="showToast('Coming soon!', 'info')">Contact Sales</button>
             </div>
+        </div>
+    </section>
+
+    <!-- Admin Panel (Hidden by default, shown for admin users) -->
+    <section class="section" id="adminSection" style="display: none;">
+        <div class="section-header">
+            <h2><i class="fas fa-cog" style="color: var(--primary);"></i> Admin Dashboard</h2>
+            <p>Manage users, view statistics, and monitor platform activity.</p>
+        </div>
+        <div class="admin-panel active" style="display: block;">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+                <div class="result-item" style="text-align: center;">
+                    <label>Total Users</label>
+                    <value id="adminTotalUsers">0</value>
+                </div>
+                <div class="result-item" style="text-align: center;">
+                    <label>Premium Users</label>
+                    <value id="adminPremiumUsers">0</value>
+                </div>
+                <div class="result-item" style="text-align: center;">
+                    <label>Free Users</label>
+                    <value id="adminFreeUsers">0</value>
+                </div>
+                <div class="result-item" style="text-align: center;">
+                    <label>Quiz Attempts</label>
+                    <value id="adminQuizAttempts">0</value>
+                </div>
+            </div>
+            <h3 style="margin-bottom: 1rem;">Recent Users</h3>
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Plan</th>
+                        <th>Joined</th>
+                        <th>Last Active</th>
+                        <th>Quiz Score</th>
+                    </tr>
+                </thead>
+                <tbody id="adminUsersTable">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
         </div>
     </section>
 
@@ -1375,6 +1594,7 @@
         </div>
     </footer>
 
+    <!-- Login Modal -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal">
             <button class="modal-close" onclick="closeModal('login')">&times;</button>
@@ -1382,19 +1602,25 @@
             <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Sign in to access your progress and premium tools.</p>
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" placeholder="you@example.com">
+                <input type="email" id="loginEmail" placeholder="you@example.com">
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" placeholder="••••••••">
+                <input type="password" id="loginPassword" placeholder="••••••••">
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+            <div class="error-msg" id="loginError">Invalid email or password</div>
+            <div class="loading" id="loginLoading">
+                <div class="spinner"></div>
+                <span>Signing in...</span>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="login()" id="loginBtn">Sign In</button>
             <p style="text-align: center; margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
                 Don't have an account? <a href="#" style="color: var(--primary);" onclick="closeModal('login'); openModal('signup')">Sign up</a>
             </p>
         </div>
     </div>
 
+    <!-- Signup Modal -->
     <div class="modal-overlay" id="signupModal">
         <div class="modal">
             <button class="modal-close" onclick="closeModal('signup')">&times;</button>
@@ -1402,175 +1628,491 @@
             <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Start your network mastery journey today.</p>
             <div class="form-group">
                 <label>Full Name</label>
-                <input type="text" placeholder="John Doe">
+                <input type="text" id="signupName" placeholder="John Doe">
             </div>
             <div class="form-group">
                 <label>Email</label>
-                <input type="email" placeholder="you@example.com">
+                <input type="email" id="signupEmail" placeholder="you@example.com">
             </div>
             <div class="form-group">
                 <label>Password</label>
-                <input type="password" placeholder="••••••••">
+                <input type="password" id="signupPassword" placeholder="Min 6 characters">
             </div>
-            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
+            <div class="error-msg" id="signupError">Please fill all fields correctly</div>
+            <div class="success-msg" id="signupSuccess">Account created successfully!</div>
+            <div class="loading" id="signupLoading">
+                <div class="spinner"></div>
+                <span>Creating account...</span>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="signup()" id="signupBtn">Create Account</button>
             <p style="text-align: center; margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
                 Already have an account? <a href="#" style="color: var(--primary);" onclick="closeModal('signup'); openModal('login')">Sign in</a>
             </p>
         </div>
     </div>
 
-
     <script>
-        // Binary rain animation
-        function createBinaryRain() {
-            const container = document.getElementById('binaryRain');
-            const chars = '01';
-            const columns = Math.floor(window.innerWidth / 20);
+        // ==========================================
+        // FIREBASE CONFIGURATION - FREE TIER
+        // ==========================================
+        // Replace with your own Firebase config after creating project
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-            for (let i = 0; i < columns; i++) {
-                const span = document.createElement('span');
-                span.style.position = 'absolute';
-                span.style.left = i * 20 + 'px';
-                span.style.top = '-20px';
-                span.style.color = 'var(--primary)';
-                span.style.fontSize = '14px';
-                span.style.animation = `fall ${Math.random() * 5 + 3}s linear infinite`;
-                span.style.animationDelay = Math.random() * 5 + 's';
-                span.textContent = chars[Math.floor(Math.random() * chars.length)];
-                container.appendChild(span);
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Global state
+        let currentUser = null;
+        let isPremium = false;
+        let userData = null;
+
+        // ==========================================
+        // AUTHENTICATION FUNCTIONS
+        // ==========================================
+
+        // Sign Up
+        async function signup() {
+            const name = document.getElementById('signupName').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const errorMsg = document.getElementById('signupError');
+            const successMsg = document.getElementById('signupSuccess');
+            const loading = document.getElementById('signupLoading');
+            const btn = document.getElementById('signupBtn');
+
+            // Validation
+            if (!name || !email || !password) {
+                errorMsg.textContent = 'Please fill all fields';
+                errorMsg.classList.add('show');
+                return;
+            }
+            if (password.length < 6) {
+                errorMsg.textContent = 'Password must be at least 6 characters';
+                errorMsg.classList.add('show');
+                return;
+            }
+
+            errorMsg.classList.remove('show');
+            loading.classList.add('show');
+            btn.disabled = true;
+
+            try {
+                // Create user in Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                const user = userCredential.user;
+
+                // Update profile with name
+                await user.updateProfile({ displayName: name });
+
+                // Create user document in Firestore
+                await db.collection('users').doc(user.uid).set({
+                    name: name,
+                    email: email,
+                    plan: 'free',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+                    quizScores: [],
+                    totalQuizzes: 0,
+                    progress: {
+                        network: 0,
+                        security: 0,
+                        comptia: 0
+                    }
+                });
+
+                successMsg.classList.add('show');
+                showToast('Account created successfully!', 'success');
+
+                setTimeout(() => {
+                    closeModal('signup');
+                    successMsg.classList.remove('show');
+                }, 1500);
+
+            } catch (error) {
+                errorMsg.textContent = error.message;
+                errorMsg.classList.add('show');
+                console.error('Signup error:', error);
+            } finally {
+                loading.classList.remove('show');
+                btn.disabled = false;
             }
         }
 
-        // Terminal typing effect
-        const terminalCommands = [
-            { cmd: 'subnetcalc 192.168.1.0/24', output: ['Network: 192.168.1.0/24', 'Netmask: 255.255.255.0', 'Broadcast: 192.168.1.255', 'Usable Range: 192.168.1.1 - 192.168.1.254', 'Total Hosts: 254'] },
-            { cmd: 'portscan 192.168.1.1', output: ['22/tcp   open   ssh', '80/tcp   open   http', '443/tcp  open   https', '3306/tcp closed mysql'] },
-            { cmd: 'ipclassify 10.0.0.1', output: ['Type: Private', 'Class: A', 'Range: 10.0.0.0 - 10.255.255.255', 'RFC: 1918'] }
-        ];
+        // Login
+        async function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorMsg = document.getElementById('loginError');
+            const loading = document.getElementById('loginLoading');
+            const btn = document.getElementById('loginBtn');
 
-        let currentCmd = 0;
-        function animateTerminal() {
-            const terminal = document.getElementById('terminalText');
-            const data = terminalCommands[currentCmd];
+            if (!email || !password) {
+                errorMsg.textContent = 'Please enter email and password';
+                errorMsg.classList.add('show');
+                return;
+            }
 
-            let html = `<span class="cmd">$</span> ${data.cmd}<br>`;
-            data.output.forEach(line => {
-                const parts = line.split(/\s{2,}/);
-                html += `<span class="output">${parts[0]}</span>${parts[1] ? '   ' + parts[1] : ''}<br>`;
+            errorMsg.classList.remove('show');
+            loading.classList.add('show');
+            btn.disabled = true;
+
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                showToast('Welcome back!', 'success');
+                closeModal('login');
+            } catch (error) {
+                errorMsg.textContent = 'Invalid email or password';
+                errorMsg.classList.add('show');
+                console.error('Login error:', error);
+            } finally {
+                loading.classList.remove('show');
+                btn.disabled = false;
+            }
+        }
+
+        // Logout
+        async function logout() {
+            try {
+                await auth.signOut();
+                showToast('Logged out successfully', 'success');
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        // Auth State Listener
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadUserData(user.uid);
+                updateUIForUser(user);
+            } else {
+                currentUser = null;
+                isPremium = false;
+                userData = null;
+                updateUIForGuest();
+            }
+        });
+
+        // ==========================================
+        // USER DATA FUNCTIONS
+        // ==========================================
+
+        async function loadUserData(uid) {
+            try {
+                const doc = await db.collection('users').doc(uid).get();
+                if (doc.exists) {
+                    userData = doc.data();
+                    isPremium = userData.plan === 'premium' || userData.plan === 'pro';
+
+                    // Update last active
+                    await db.collection('users').doc(uid).update({
+                        lastActive: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Update UI for logged-in user
+        function updateUIForUser(user) {
+            document.getElementById('navActions').style.display = 'none';
+            document.getElementById('userMenu').classList.add('active');
+            document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
+
+            if (isPremium) {
+                document.getElementById('userBadge').style.display = 'inline-flex';
+                unlockPremiumFeatures();
+            } else {
+                document.getElementById('userBadge').style.display = 'none';
+            }
+
+            // Update progress bars if data exists
+            if (userData && userData.progress) {
+                updateProgressBars(userData.progress);
+            }
+
+            // Check if admin (simple check - you can make this more secure)
+            if (user.email === 'admin@netforge.com') {
+                document.getElementById('adminSection').style.display = 'block';
+                loadAdminData();
+            }
+        }
+
+        // Update UI for guest
+        function updateUIForGuest() {
+            document.getElementById('navActions').style.display = 'flex';
+            document.getElementById('userMenu').classList.remove('active');
+            document.getElementById('userBadge').style.display = 'none';
+            lockPremiumFeatures();
+        }
+
+        // ==========================================
+        // PREMIUM FEATURES
+        // ==========================================
+
+        function unlockPremiumFeatures() {
+            // Unlock premium tools
+            const premiumTools = ['toolMacLookup', 'toolRouteSum', 'toolAclGen'];
+            premiumTools.forEach(id => {
+                const tool = document.getElementById(id);
+                if (tool) {
+                    tool.classList.remove('premium-locked');
+                    tool.onclick = () => scrollToSection('calculators');
+                }
             });
-            html += `<span class="cmd">$</span> <span class="comment"># Ready for next command...</span>`;
 
-            terminal.innerHTML = html;
-            currentCmd = (currentCmd + 1) % terminalCommands.length;
+            // Update lock icons
+            document.getElementById('macLockIcon').className = 'fas fa-unlock';
+            document.getElementById('macLockIcon').style.color = 'var(--accent)';
+            document.getElementById('routeLockIcon').className = 'fas fa-unlock';
+            document.getElementById('routeLockIcon').style.color = 'var(--accent)';
+            document.getElementById('aclLockIcon').className = 'fas fa-unlock';
+            document.getElementById('aclLockIcon').style.color = 'var(--accent)';
+
+            // Unlock CompTIA course
+            const btnComptia = document.getElementById('btnComptia');
+            if (btnComptia) {
+                btnComptia.innerHTML = '<i class="fas fa-play"></i> Start Course';
+                btnComptia.onclick = () => scrollToSection('quiz');
+            }
         }
 
-        setInterval(animateTerminal, 4000);
+        function lockPremiumFeatures() {
+            const premiumTools = ['toolMacLookup', 'toolRouteSum', 'toolAclGen'];
+            premiumTools.forEach(id => {
+                const tool = document.getElementById(id);
+                if (tool) {
+                    tool.classList.add('premium-locked');
+                }
+            });
 
-        // Navigation scroll
-        function scrollToSection(id) {
-            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('macLockIcon').className = 'fas fa-lock';
+            document.getElementById('macLockIcon').style.color = 'var(--warning)';
+            document.getElementById('routeLockIcon').className = 'fas fa-lock';
+            document.getElementById('routeLockIcon').style.color = 'var(--warning)';
+            document.getElementById('aclLockIcon').className = 'fas fa-lock';
+            document.getElementById('aclLockIcon').style.color = 'var(--warning)';
+
+            const btnComptia = document.getElementById('btnComptia');
+            if (btnComptia) {
+                btnComptia.innerHTML = '<i class="fas fa-crown"></i> Upgrade to Pro';
+                btnComptia.onclick = () => checkPremiumAccess('comptia');
+            }
         }
 
-        // Modal functions
+        function checkPremiumAccess(feature) {
+            if (!currentUser) {
+                showToast('Please log in to access premium features', 'error');
+                openModal('login');
+                return;
+            }
+            if (!isPremium) {
+                showToast('Upgrade to Pro to unlock this feature!', 'error');
+                scrollToSection('pricing');
+                return;
+            }
+            // If premium, redirect to calculators
+            scrollToSection('calculators');
+        }
+
+        // Upgrade to Pro (simulated - no real payment in free version)
+        async function upgradeToPro() {
+            if (!currentUser) {
+                showToast('Please log in first', 'error');
+                openModal('login');
+                return;
+            }
+
+            // For demo purposes, we'll upgrade directly without payment
+            // In production, you'd integrate Stripe/PayPal here
+            try {
+                await db.collection('users').doc(currentUser.uid).update({
+                    plan: 'premium',
+                    upgradedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                isPremium = true;
+                unlockPremiumFeatures();
+                showToast('Welcome to Pro! All features unlocked.', 'success');
+
+                // Update UI
+                document.getElementById('userBadge').style.display = 'inline-flex';
+            } catch (error) {
+                console.error('Upgrade error:', error);
+                showToast('Upgrade failed. Please try again.', 'error');
+            }
+        }
+
+        // ==========================================
+        // PROGRESS TRACKING
+        // ==========================================
+
+        function updateProgressBars(progress) {
+            if (progress.network !== undefined) {
+                document.getElementById('progressNetwork').textContent = progress.network + '%';
+                document.getElementById('barNetwork').style.width = progress.network + '%';
+            }
+            if (progress.security !== undefined) {
+                document.getElementById('progressSecurity').textContent = progress.security + '%';
+                document.getElementById('barSecurity').style.width = progress.security + '%';
+            }
+            if (progress.comptia !== undefined) {
+                document.getElementById('progressComptia').textContent = progress.comptia + '%';
+                document.getElementById('barComptia').style.width = progress.comptia + '%';
+            }
+        }
+
+        async function saveQuizScore(score, total) {
+            if (!currentUser) return;
+
+            const percentage = Math.round((score / total) * 100);
+            try {
+                await db.collection('users').doc(currentUser.uid).update({
+                    quizScores: firebase.firestore.FieldValue.arrayUnion({
+                        score: score,
+                        total: total,
+                        percentage: percentage,
+                        date: firebase.firestore.FieldValue.serverTimestamp()
+                    }),
+                    totalQuizzes: firebase.firestore.FieldValue.increment(1)
+                });
+            } catch (error) {
+                console.error('Error saving score:', error);
+            }
+        }
+
+        // ==========================================
+        // ADMIN DASHBOARD
+        // ==========================================
+
+        async function loadAdminData() {
+            try {
+                const usersSnapshot = await db.collection('users').get();
+                const users = [];
+                let premiumCount = 0;
+                let totalQuizAttempts = 0;
+
+                usersSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    users.push(data);
+                    if (data.plan === 'premium' || data.plan === 'pro') premiumCount++;
+                    if (data.totalQuizzes) totalQuizAttempts += data.totalQuizzes;
+                });
+
+                // Update stats
+                document.getElementById('adminTotalUsers').textContent = users.length;
+                document.getElementById('adminPremiumUsers').textContent = premiumCount;
+                document.getElementById('adminFreeUsers').textContent = users.length - premiumCount;
+                document.getElementById('adminQuizAttempts').textContent = totalQuizAttempts;
+
+                // Update table
+                const tbody = document.getElementById('adminUsersTable');
+                tbody.innerHTML = users.slice(0, 10).map(u => `
+                    <tr>
+                        <td>${u.email}</td>
+                        <td><span class="badge ${u.plan === 'premium' ? 'badge-premium' : 'badge-free'}">${u.plan || 'free'}</span></td>
+                        <td>${u.createdAt ? new Date(u.createdAt.toDate()).toLocaleDateString() : 'N/A'}</td>
+                        <td>${u.lastActive ? new Date(u.lastActive.toDate()).toLocaleDateString() : 'N/A'}</td>
+                        <td>${u.totalQuizzes || 0}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Admin data error:', error);
+            }
+        }
+
+        // ==========================================
+        // UI UTILITIES
+        // ==========================================
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+
+            msg.textContent = message;
+            toast.className = 'toast show ' + type;
+            icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
         function openModal(type) {
             document.getElementById(type + 'Modal').classList.add('active');
         }
 
         function closeModal(type) {
             document.getElementById(type + 'Modal').classList.remove('active');
+            // Clear errors
+            document.getElementById(type + 'Error')?.classList.remove('show');
+            document.getElementById(type + 'Success')?.classList.remove('show');
         }
 
-        // Close modal on overlay click
-        document.querySelectorAll('.modal-overlay').forEach(overlay => {
-            overlay.addEventListener('click', (e) => {
-                if (e.target === overlay) overlay.classList.remove('active');
-            });
-        });
-
-        // Premium alert
-        function showPremiumAlert() {
-            alert('This is a premium feature. Upgrade to Pro to unlock it!');
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Calculator switching
         function switchCalc(calc) {
             document.querySelectorAll('.calc-tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.calc-panel').forEach(panel => panel.classList.remove('active'));
-
             event.target.classList.add('active');
             document.getElementById('calc-' + calc).classList.add('active');
         }
 
-        // Subnet Calculator
+        // ==========================================
+        // CALCULATOR FUNCTIONS (same as before)
+        // ==========================================
+
         function calculateSubnet() {
             const ip = document.getElementById('subnetIp').value;
             const cidr = parseInt(document.getElementById('subnetCidr').value);
-
-            if (!isValidIP(ip)) {
-                alert('Please enter a valid IP address');
-                return;
-            }
-
+            if (!isValidIP(ip)) { showToast('Invalid IP address', 'error'); return; }
             const ipParts = ip.split('.').map(Number);
             const ipLong = (ipParts[0] << 24) | (ipParts[1] << 16) | (ipParts[2] << 8) | ipParts[3];
-
             const mask = 0xFFFFFFFF << (32 - cidr);
             const networkLong = ipLong & mask;
             const broadcastLong = networkLong | (~mask >>> 0);
-
-            const network = longToIP(networkLong);
-            const broadcast = longToIP(broadcastLong);
-            const firstUsable = longToIP(networkLong + 1);
-            const lastUsable = longToIP(broadcastLong - 1);
-            const totalHosts = Math.pow(2, 32 - cidr) - 2;
-            const subnetMask = longToIP(mask);
-            const wildcard = longToIP(~mask >>> 0);
-
-            const binaryMask = ipParts.map(p => p.toString(2).padStart(8, '0')).join('.');
-            const ipClass = ipParts[0] >= 1 && ipParts[0] <= 126 ? 'A' : 
-                           ipParts[0] >= 128 && ipParts[0] <= 191 ? 'B' : 
-                           ipParts[0] >= 192 && ipParts[0] <= 223 ? 'C' : 'D/E';
-
-            document.getElementById('resNetwork').textContent = network + '/' + cidr;
-            document.getElementById('resMask').textContent = subnetMask;
-            document.getElementById('resBroadcast').textContent = broadcast;
-            document.getElementById('resRange').textContent = firstUsable + ' - ' + lastUsable;
-            document.getElementById('resHosts').textContent = totalHosts > 0 ? totalHosts : 0;
-            document.getElementById('resWildcard').textContent = wildcard;
-            document.getElementById('resBinary').textContent = binaryMask;
-            document.getElementById('resClass').textContent = ipClass;
-
+            document.getElementById('resNetwork').textContent = longToIP(networkLong) + '/' + cidr;
+            document.getElementById('resMask').textContent = longToIP(mask);
+            document.getElementById('resBroadcast').textContent = longToIP(broadcastLong);
+            document.getElementById('resRange').textContent = longToIP(networkLong + 1) + ' - ' + longToIP(broadcastLong - 1);
+            document.getElementById('resHosts').textContent = Math.max(0, Math.pow(2, 32 - cidr) - 2);
+            document.getElementById('resWildcard').textContent = longToIP(~mask >>> 0);
+            document.getElementById('resBinary').textContent = ipParts.map(p => p.toString(2).padStart(8, '0')).join('.');
+            document.getElementById('resClass').textContent = ipParts[0] >= 1 && ipParts[0] <= 126 ? 'A' : ipParts[0] >= 128 && ipParts[0] <= 191 ? 'B' : ipParts[0] >= 192 && ipParts[0] <= 223 ? 'C' : 'D/E';
             document.getElementById('subnetResults').classList.add('show');
         }
 
-        // CIDR Calculator
         function calculateCidr() {
             const input = document.getElementById('cidrInput').value;
             const match = input.match(/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\/(\d{1,2})$/);
-
-            if (!match) {
-                alert('Please enter valid CIDR notation (e.g., 10.0.0.0/8)');
-                return;
-            }
-
-            const ip = match[1];
-            const cidr = parseInt(match[2]);
+            if (!match) { showToast('Invalid CIDR format', 'error'); return; }
+            const ip = match[1]; const cidr = parseInt(match[2]);
             const ipParts = ip.split('.').map(Number);
             const ipLong = (ipParts[0] << 24) | (ipParts[1] << 16) | (ipParts[2] << 8) | ipParts[3];
-
             const mask = 0xFFFFFFFF << (32 - cidr);
             const networkLong = ipLong & mask;
             const broadcastLong = networkLong | (~mask >>> 0);
-
             document.getElementById('cidrNetwork').textContent = longToIP(networkLong) + '/' + cidr;
             document.getElementById('cidrFirst').textContent = longToIP(networkLong + 1);
             document.getElementById('cidrLast').textContent = longToIP(broadcastLong - 1);
             document.getElementById('cidrTotal').textContent = Math.pow(2, 32 - cidr);
-
             document.getElementById('cidrResults').classList.add('show');
         }
 
-        // Port Lookup
         const portDatabase = {
             '20': { service: 'FTP-DATA', proto: 'TCP', desc: 'File Transfer Protocol (data)' },
             '21': { service: 'FTP', proto: 'TCP', desc: 'File Transfer Protocol (control)' },
@@ -1602,7 +2144,6 @@
         function lookupPort() {
             const input = document.getElementById('portInput').value.trim().toLowerCase();
             const data = portDatabase[input];
-
             if (!data) {
                 document.getElementById('portNum').textContent = input;
                 document.getElementById('portService').textContent = 'Unknown';
@@ -1619,223 +2160,134 @@
                 document.getElementById('portProto').textContent = data.proto;
                 document.getElementById('portDesc').textContent = data.desc;
             }
-
             document.getElementById('portResults').classList.add('show');
         }
 
-        // IP Classifier
         function classifyIp() {
             const ip = document.getElementById('classifyIp').value;
-
-            if (!isValidIP(ip)) {
-                alert('Please enter a valid IP address');
-                return;
-            }
-
+            if (!isValidIP(ip)) { showToast('Invalid IP address', 'error'); return; }
             const parts = ip.split('.').map(Number);
             const first = parts[0];
-
-            let type = 'Public';
-            let ipClass = 'A';
-            let isPrivate = 'No';
-            let isLoopback = 'No';
-
-            if (first === 127) {
-                type = 'Loopback';
-                isLoopback = 'Yes';
-                ipClass = 'A';
-            } else if (first >= 1 && first <= 126) {
-                ipClass = 'A';
-                if (first === 10) { type = 'Private'; isPrivate = 'Yes'; }
-            } else if (first >= 128 && first <= 191) {
-                ipClass = 'B';
-                if (first === 172 && parts[1] >= 16 && parts[1] <= 31) { type = 'Private'; isPrivate = 'Yes'; }
-            } else if (first >= 192 && first <= 223) {
-                ipClass = 'C';
-                if (first === 192 && parts[1] === 168) { type = 'Private'; isPrivate = 'Yes'; }
-            } else if (first >= 224 && first <= 239) {
-                ipClass = 'D (Multicast)';
-                type = 'Multicast';
-            } else {
-                ipClass = 'E (Experimental)';
-                type = 'Experimental';
-            }
-
-            if (first === 169 && parts[1] === 254) {
-                type = 'Link-local';
-                isPrivate = 'Yes (APIPA)';
-            }
-
+            let type = 'Public', ipClass = 'A', isPrivate = 'No', isLoopback = 'No';
+            if (first === 127) { type = 'Loopback'; isLoopback = 'Yes'; }
+            else if (first >= 1 && first <= 126) { ipClass = 'A'; if (first === 10) { type = 'Private'; isPrivate = 'Yes'; } }
+            else if (first >= 128 && first <= 191) { ipClass = 'B'; if (first === 172 && parts[1] >= 16 && parts[1] <= 31) { type = 'Private'; isPrivate = 'Yes'; } }
+            else if (first >= 192 && first <= 223) { ipClass = 'C'; if (first === 192 && parts[1] === 168) { type = 'Private'; isPrivate = 'Yes'; } }
+            else if (first >= 224 && first <= 239) { ipClass = 'D (Multicast)'; type = 'Multicast'; }
+            else { ipClass = 'E (Experimental)'; type = 'Experimental'; }
+            if (first === 169 && parts[1] === 254) { type = 'Link-local'; isPrivate = 'Yes (APIPA)'; }
             document.getElementById('ipType').textContent = type;
             document.getElementById('ipClass').textContent = ipClass;
             document.getElementById('ipPrivate').textContent = isPrivate;
             document.getElementById('ipLoopback').textContent = isLoopback;
-
             document.getElementById('classifyResults').classList.add('show');
         }
 
-        // Password Generator
         function generatePassword() {
             const length = parseInt(document.getElementById('passLength').value);
             const useUpper = document.getElementById('passUpper').checked;
             const useNumbers = document.getElementById('passNumbers').checked;
             const useSymbols = document.getElementById('passSymbols').checked;
-
             let chars = 'abcdefghijklmnopqrstuvwxyz';
             if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
             if (useNumbers) chars += '0123456789';
             if (useSymbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
-
             let password = '';
-            for (let i = 0; i < length; i++) {
-                password += chars[Math.floor(Math.random() * chars.length)];
-            }
-
+            for (let i = 0; i < length; i++) password += chars[Math.floor(Math.random() * chars.length)];
             const poolSize = chars.length;
             const entropy = Math.log2(Math.pow(poolSize, length)).toFixed(2);
-
             let strength = 'Weak';
             if (entropy > 80) strength = 'Very Strong';
             else if (entropy > 60) strength = 'Strong';
             else if (entropy > 40) strength = 'Moderate';
-
             document.getElementById('generatedPass').textContent = password;
             document.getElementById('passEntropy').textContent = entropy + ' bits';
             document.getElementById('passStrength').textContent = strength;
-
             document.getElementById('passResults').classList.add('show');
         }
 
-        // Helper functions
         function isValidIP(ip) {
             const parts = ip.split('.');
             if (parts.length !== 4) return false;
-            return parts.every(p => {
-                const num = parseInt(p);
-                return !isNaN(num) && num >= 0 && num <= 255;
-            });
+            return parts.every(p => { const num = parseInt(p); return !isNaN(num) && num >= 0 && num <= 255; });
         }
 
         function longToIP(long) {
-            return [
-                (long >>> 24) & 0xFF,
-                (long >>> 16) & 0xFF,
-                (long >>> 8) & 0xFF,
-                long & 0xFF
-            ].join('.');
+            return [(long >>> 24) & 0xFF, (long >>> 16) & 0xFF, (long >>> 8) & 0xFF, long & 0xFF].join('.');
         }
 
-        // Quiz System
+        // ==========================================
+        // QUIZ SYSTEM
+        // ==========================================
+
         const quizQuestions = [
-            {
-                question: 'What is the default subnet mask for a Class C IP address?',
-                options: ['255.0.0.0', '255.255.0.0', '255.255.255.0', '255.255.255.255'],
-                correct: 2,
-                explanation: 'Class C addresses use the first 24 bits for the network portion, resulting in a 255.255.255.0 mask.'
-            },
-            {
-                question: 'Which protocol is used for secure remote administration of network devices?',
-                options: ['Telnet', 'FTP', 'SSH', 'HTTP'],
-                correct: 2,
-                explanation: 'SSH (Secure Shell) provides encrypted communication for remote administration, unlike Telnet which sends data in plaintext.'
-            },
-            {
-                question: 'What does CIDR stand for?',
-                options: ['Classless Inter-Domain Routing', 'Classful Internet Data Routing', 'Common IP Distribution Range', 'Centralized IP Domain Registry'],
-                correct: 0,
-                explanation: 'CIDR (Classless Inter-Domain Routing) replaced classful networking to allow more flexible IP allocation.'
-            },
-            {
-                question: 'Which port does DNS primarily use?',
-                options: ['21', '53', '80', '443'],
-                correct: 1,
-                explanation: 'DNS uses port 53 for both TCP and UDP communications.'
-            },
-            {
-                question: 'What is the purpose of a wildcard mask in ACLs?',
-                options: ['To encrypt traffic', 'To define which bits to ignore', 'To compress data', 'To authenticate users'],
-                correct: 1,
-                explanation: 'A wildcard mask inverts the subnet mask - 0 means "must match", 1 means "ignore".'
-            }
+            { question: 'What is the default subnet mask for a Class C IP address?', options: ['255.0.0.0', '255.255.0.0', '255.255.255.0', '255.255.255.255'], correct: 2, explanation: 'Class C addresses use the first 24 bits for the network portion, resulting in a 255.255.255.0 mask.' },
+            { question: 'Which protocol is used for secure remote administration of network devices?', options: ['Telnet', 'FTP', 'SSH', 'HTTP'], correct: 2, explanation: 'SSH (Secure Shell) provides encrypted communication for remote administration, unlike Telnet which sends data in plaintext.' },
+            { question: 'What does CIDR stand for?', options: ['Classless Inter-Domain Routing', 'Classful Internet Data Routing', 'Common IP Distribution Range', 'Centralized IP Domain Registry'], correct: 0, explanation: 'CIDR (Classless Inter-Domain Routing) replaced classful networking to allow more flexible IP allocation.' },
+            { question: 'Which port does DNS primarily use?', options: ['21', '53', '80', '443'], correct: 1, explanation: 'DNS uses port 53 for both TCP and UDP communications.' },
+            { question: 'What is the purpose of a wildcard mask in ACLs?', options: ['To encrypt traffic', 'To define which bits to ignore', 'To compress data', 'To authenticate users'], correct: 1, explanation: 'A wildcard mask inverts the subnet mask - 0 means "must match", 1 means "ignore".' }
         ];
 
         let currentQuestion = 0;
         let userAnswers = [];
-        let quizTimer = 300; // 5 minutes
+        let quizTimer = 300;
         let timerInterval;
 
         function loadQuiz() {
             const container = document.getElementById('quizContent');
             const q = quizQuestions[currentQuestion];
-
             document.getElementById('currentQ').textContent = currentQuestion + 1;
             document.getElementById('totalQ').textContent = quizQuestions.length;
-
             let html = `<div class="question-card"><h4>${q.question}</h4><div class="options">`;
             q.options.forEach((opt, idx) => {
                 const selected = userAnswers[currentQuestion] === idx ? 'selected' : '';
                 html += `<div class="option ${selected}" onclick="selectOption(${idx})"><div class="option-letter">${String.fromCharCode(65 + idx)}</div><div>${opt}</div></div>`;
             });
             html += '</div></div>';
-
             container.innerHTML = html;
-
             document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'flex' : 'none';
             document.getElementById('nextBtn').innerHTML = currentQuestion === quizQuestions.length - 1 ? 'Finish <i class="fas fa-check"></i>' : 'Next <i class="fas fa-arrow-right"></i>';
         }
 
         function selectOption(idx) {
             userAnswers[currentQuestion] = idx;
-            document.querySelectorAll('.option').forEach((opt, i) => {
-                opt.classList.toggle('selected', i === idx);
-            });
+            document.querySelectorAll('.option').forEach((opt, i) => opt.classList.toggle('selected', i === idx));
         }
 
         function nextQuestion() {
-            if (currentQuestion < quizQuestions.length - 1) {
-                currentQuestion++;
-                loadQuiz();
-            } else {
-                finishQuiz();
-            }
+            if (currentQuestion < quizQuestions.length - 1) { currentQuestion++; loadQuiz(); }
+            else { finishQuiz(); }
         }
 
         function prevQuestion() {
-            if (currentQuestion > 0) {
-                currentQuestion--;
-                loadQuiz();
-            }
+            if (currentQuestion > 0) { currentQuestion--; loadQuiz(); }
         }
 
-        function finishQuiz() {
+        async function finishQuiz() {
             clearInterval(timerInterval);
-
             let score = 0;
-            userAnswers.forEach((ans, idx) => {
-                if (ans === quizQuestions[idx].correct) score++;
-            });
+            userAnswers.forEach((ans, idx) => { if (ans === quizQuestions[idx].correct) score++; });
+
+            // Save score if logged in
+            await saveQuizScore(score, quizQuestions.length);
 
             document.getElementById('quizContainer').style.display = 'none';
             document.getElementById('quizResults').style.display = 'block';
             document.getElementById('finalScore').textContent = `${score}/${quizQuestions.length}`;
-
             const percentage = (score / quizQuestions.length) * 100;
             let message = '';
             if (percentage >= 80) message = 'Excellent! You have a strong grasp of networking fundamentals.';
             else if (percentage >= 60) message = 'Good job! Review the topics you missed and try again.';
             else message = 'Keep studying! Check out our learning modules to improve your skills.';
-
             document.getElementById('resultMessage').textContent = message;
         }
 
         function restartQuiz() {
-            currentQuestion = 0;
-            userAnswers = [];
-            quizTimer = 300;
+            currentQuestion = 0; userAnswers = []; quizTimer = 300;
             document.getElementById('quizContainer').style.display = 'block';
             document.getElementById('quizResults').style.display = 'none';
-            loadQuiz();
-            startTimer();
+            document.getElementById('quizTimer').classList.remove('urgent');
+            loadQuiz(); startTimer();
         }
 
         function startTimer() {
@@ -1845,22 +2297,48 @@
                 const mins = Math.floor(quizTimer / 60).toString().padStart(2, '0');
                 const secs = (quizTimer % 60).toString().padStart(2, '0');
                 document.getElementById('timerDisplay').textContent = `${mins}:${secs}`;
-
-                if (quizTimer <= 60) {
-                    document.getElementById('quizTimer').classList.add('urgent');
-                }
-
-                if (quizTimer <= 0) {
-                    finishQuiz();
-                }
+                if (quizTimer <= 60) document.getElementById('quizTimer').classList.add('urgent');
+                if (quizTimer <= 0) finishQuiz();
             }, 1000);
         }
+
+        // ==========================================
+        // ANIMATIONS & MISC
+        // ==========================================
+
+        function createBinaryRain() {
+            const container = document.getElementById('binaryRain');
+            const chars = '01';
+            const columns = Math.floor(window.innerWidth / 20);
+            for (let i = 0; i < columns; i++) {
+                const span = document.createElement('span');
+                span.style.cssText = `position:absolute;left:${i * 20}px;top:-20px;color:var(--primary);font-size:14px;animation:fall ${Math.random() * 5 + 3}s linear infinite;animation-delay:${Math.random() * 5}s`;
+                span.textContent = chars[Math.floor(Math.random() * chars.length)];
+                container.appendChild(span);
+            }
+        }
+
+        const terminalCommands = [
+            { cmd: 'subnetcalc 192.168.1.0/24', output: ['Network: 192.168.1.0/24', 'Netmask: 255.255.255.0', 'Broadcast: 192.168.1.255', 'Usable Range: 192.168.1.1 - 192.168.1.254', 'Total Hosts: 254'] },
+            { cmd: 'portscan 192.168.1.1', output: ['22/tcp   open   ssh', '80/tcp   open   http', '443/tcp  open   https', '3306/tcp closed mysql'] },
+            { cmd: 'ipclassify 10.0.0.1', output: ['Type: Private', 'Class: A', 'Range: 10.0.0.0 - 10.255.255.255', 'RFC: 1918'] }
+        ];
+        let currentCmd = 0;
+        function animateTerminal() {
+            const terminal = document.getElementById('terminalText');
+            const data = terminalCommands[currentCmd];
+            let html = `<span class="cmd">$</span> ${data.cmd}<br>`;
+            data.output.forEach(line => { const parts = line.split(/\s{2,}/); html += `<span class="output">${parts[0]}</span>${parts[1] ? '   ' + parts[1] : ''}<br>`; });
+            html += `<span class="cmd">$</span> <span class="comment"># Ready for next command...</span>`;
+            terminal.innerHTML = html;
+            currentCmd = (currentCmd + 1) % terminalCommands.length;
+        }
+        setInterval(animateTerminal, 4000);
 
         // Active nav link
         window.addEventListener('scroll', () => {
             const sections = ['tools', 'calculators', 'learn', 'quiz', 'pricing'];
             const scrollPos = window.scrollY + 100;
-
             sections.forEach(id => {
                 const section = document.getElementById(id);
                 if (section && scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) {
@@ -1868,6 +2346,11 @@
                     document.querySelector(`.nav-links a[href="#${id}"]`)?.classList.add('active');
                 }
             });
+        });
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
         });
 
         // Initialize
