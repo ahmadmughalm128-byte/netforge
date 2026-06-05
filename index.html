@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NetForge — Network Tools & Cybersecurity Learning Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-dark: #0284c7;
+            --secondary: #8b5cf6;
+            --accent: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --bg-elevated: #334155;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: #334155;
+            --gradient-1: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 100%);
+            --gradient-2: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(ellipse at 20% 50%, rgba(14, 165, 233, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, rgba(139, 92, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 100%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(51, 65, 85, 0.3) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(51, 65, 85, 0.3) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+        }
+
+        .navbar {
+            position: fixed;
+            top: 0; width: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            z-index: 1000;
+            padding: 0 2rem;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px; height: 40px;
+            background: var(--gradient-1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .logo span { background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+            position: relative;
+        }
+
+        .nav-links a:hover, .nav-links a.active { color: var(--primary); }
+
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -8px; left: 0; right: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            border-radius: 2px;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+        .btn-primary {
+            background: var(--gradient-1);
+            color: white;
+            box-shadow: 0 4px 15px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4); }
+
+        .btn-success {
+            background: var(--gradient-2);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-sm { padding: 6px 16px; font-size: 0.8rem; }
+
+        .hero {
+            padding: 140px 2rem 80px;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-content h1 span {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stat-item h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-item p { color: var(--text-muted); font-size: 0.9rem; }
+
+        .hero-visual {
+            position: relative;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hero-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: var(--gradient-1);
+            opacity: 0.05;
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .terminal-header {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .terminal-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background: var(--danger); }
+        .dot-yellow { background: var(--warning); }
+        .dot-green { background: var(--accent); }
+
+        .terminal-body {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        .terminal-body .cmd { color: var(--primary); }
+        .terminal-body .output { color: var(--accent); }
+        .terminal-body .comment { color: var(--text-muted); }
+
+        .section {
+            padding: 80px 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-header h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-free { background: rgba(16, 185, 129, 0.15); color: var(--accent); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-premium { background: rgba(139, 92, 246, 0.15); color: var(--secondary); border: 1px solid rgba(139, 92, 246, 0.3); }
+        .badge-new { background: rgba(14, 165, 233, 0.15); color: var(--primary); border: 1px solid rgba(14, 165, 233, 0.3); }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .tool-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .tool-card.premium::after {
+            content: '';
+            position: absolute;
+            top: 0; right: 0;
+            width: 100px; height: 100px;
+            background: var(--gradient-1);
+            opacity: 0.05;
+            border-radius: 0 0 0 100%;
+        }
+
+        .tool-icon {
+            width: 50px; height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+        }
+
+        .tool-icon.blue { background: rgba(14, 165, 233, 0.15); color: var(--primary); }
+        .tool-icon.purple { background: rgba(139, 92, 246, 0.15); color: var(--secondary); }
+        .tool-icon.green { background: rgba(16, 185, 129, 0.15); color: var(--accent); }
+        .tool-icon.orange { background: rgba(245, 158, 11, 0.15); color: var(--warning); }
+        .tool-icon.red { background: rgba(239, 68, 68, 0.15); color: var(--danger); }
+
+        .tool-card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tool-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .tool-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tool-tags {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            background: var(--bg-elevated);
+            color: var(--text-muted);
+        }
+
+        .calc-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .calc-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .calc-tab {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .calc-tab.active {
+            background: var(--gradient-1);
+            color: white;
+            border-color: transparent;
+        }
+
+        .calc-tab:hover:not(.active) { border-color: var(--primary); color: var(--primary); }
+
+        .calc-panel { display: none; }
+        .calc-panel.active { display: block; animation: fadeIn 0.3s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .calc-results {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .calc-results.show { display: block; animation: fadeIn 0.3s; }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .result-item {
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .result-item label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .result-item value {
+            display: block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .learning-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .learning-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+
+        .learning-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .learning-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .learning-header h3 { font-size: 1.2rem; }
+
+        .learning-body { padding: 1.5rem; }
+
+        .feature-list {
+            list-style: none;
+            margin: 1rem 0;
+        }
+
+        .feature-list li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .feature-list li i { color: var(--accent); font-size: 0.8rem; }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-elevated);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-1);
+            border-radius: 3px;
+            transition: width 0.5s;
+        }
+
+        .quiz-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .quiz-timer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            color: var(--warning);
+        }
+
+        .quiz-timer.urgent { color: var(--danger); animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .question-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .question-card h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .option {
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .option:hover { border-color: var(--primary); background: rgba(14, 165, 233, 0.05); }
+        .option.selected { border-color: var(--primary); background: rgba(14, 165, 233, 0.1); }
+        .option.correct { border-color: var(--accent); background: rgba(16, 185, 129, 0.1); }
+        .option.wrong { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); }
+
+        .option-letter {
+            width: 30px; height: 30px;
+            border-radius: 50%;
+            background: var(--bg-elevated);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .option.selected .option-letter { background: var(--primary); color: white; }
+        .option.correct .option-letter { background: var(--accent); color: white; }
+        .option.wrong .option-letter { background: var(--danger); color: white; }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .pricing-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .pricing-card.featured {
+            border-color: var(--primary);
+            transform: scale(1.05);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .pricing-card.featured::before {
+            content: 'MOST POPULAR';
+            position: absolute;
+            top: -12px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--gradient-1);
+            color: white;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .pricing-card h3 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .pricing-card .price { font-size: 3rem; font-weight: 800; margin: 1rem 0; }
+        .pricing-card .price span { font-size: 1rem; color: var(--text-muted); font-weight: 400; }
+
+        .footer {
+            background: var(--bg-card);
+            border-top: 1px solid var(--border);
+            padding: 3rem 2rem 2rem;
+            margin-top: 4rem;
+        }
+
+        .footer-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .footer-brand p {
+            color: var(--text-secondary);
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .footer-links h4 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .footer-links ul {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover { color: var(--primary); }
+
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 2rem auto 0;
+            padding-top: 2rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            animation: modalSlide 0.3s;
+        }
+
+        @keyframes modalSlide {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem; right: 1rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal h2 { margin-bottom: 1.5rem; }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        @media (max-width: 1024px) {
+            .hero { grid-template-columns: 1fr; text-align: center; }
+            .hero-content p { margin: 0 auto 2rem; }
+            .hero-stats { justify-content: center; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero-content h1 { font-size: 2.5rem; }
+            .section-header h2 { font-size: 2rem; }
+            .input-row { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .pricing-card.featured { transform: scale(1); }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-dark); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-elevated); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        .binary-rain {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.03;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            overflow: hidden;
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="bg-animation"></div>
+    <div class="binary-rain" id="binaryRain"></div>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">
+                <div class="logo-icon"><i class="fas fa-network-wired"></i></div>
+                <span>NetForge</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#tools" class="active">Tools</a></li>
+                <li><a href="#calculators">Calculators</a></li>
+                <li><a href="#learn">Learn</a></li>
+                <li><a href="#quiz">Quiz</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="btn btn-outline btn-sm" onclick="openModal('login')">Log In</button>
+                <button class="btn btn-primary btn-sm" onclick="openModal('signup')">Sign Up</button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Master Networks with <span>NetForge</span></h1>
+            <p>The ultimate platform for network engineers, cybersecurity students, and IT professionals. Advanced calculators, learning modules, and certification prep.</p>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="scrollToSection('tools')">
+                    <i class="fas fa-tools"></i> Explore Tools
+                </button>
+                <button class="btn btn-outline" onclick="scrollToSection('learn')">
+                    <i class="fas fa-graduation-cap"></i> Start Learning
+                </button>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <h3>15+</h3>
+                    <p>Network Tools</p>
+                </div>
+                <div class="stat-item">
+                    <h3>500+</h3>
+                    <p>Quiz Questions</p>
+                </div>
+                <div class="stat-item">
+                    <h3>10k+</h3>
+                    <p>Active Users</p>
+                </div>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="hero-card">
+                <div class="terminal-header">
+                    <div class="terminal-dot dot-red"></div>
+                    <div class="terminal-dot dot-yellow"></div>
+                    <div class="terminal-dot dot-green"></div>
+                    <span style="margin-left: auto; color: var(--text-muted); font-size: 0.8rem;">netforge@terminal</span>
+                </div>
+                <div class="terminal-body" id="terminalText">
+                    <span class="cmd">$</span> subnetcalc 192.168.1.0/24<br>
+                    <span class="output">Network:</span> 192.168.1.0/24<br>
+                    <span class="output">Netmask:</span> 255.255.255.0<br>
+                    <span class="output">Broadcast:</span> 192.168.1.255<br>
+                    <span class="output">Usable Range:</span> 192.168.1.1 - 192.168.1.254<br>
+                    <span class="output">Total Hosts:</span> 254<br>
+                    <span class="cmd">$</span> <span class="comment"># Ready for next command...</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="tools">
+        <div class="section-header">
+            <h2>Network Tools Suite</h2>
+            <p>Professional-grade utilities for everyday network operations. Free tools marked with <span class="badge badge-free">Free</span>, premium with <span class="badge badge-premium">Pro</span>.</p>
+        </div>
+        <div class="tools-grid">
+            <div class="tool-card" onclick="scrollToSection('calculators')">
+                <div class="tool-icon blue"><i class="fas fa-calculator"></i></div>
+                <h3>Subnet Calculator <span class="badge badge-free">Free</span></h3>
+                <p>Calculate subnets, CIDR ranges, broadcast addresses, and usable IP ranges instantly.</p>
+                <div class="tool-meta">
+                    <div class="tool-tags"><span class="tag">IPv4</span><span class="tag">IPv6</span></div>
+                    <i class="fas fa-arrow-right" style="color: var(--primary);"></i>
+                </div>
+            </div>
+            <div class="tool-card" onclick="scrollToSection('calculators')">
+                <div class="tool-icon purple"><i class="fas fa-exchange-alt"></i></div>
+                <h3>CIDR Converter <span class="badge badge-free">Free</span></h3>
+                <p>Convert between CIDR notation, subnet masks, wildcard masks, and binary representation.</p>
+                <div class="tool-meta">
+                    <div class="tool-tags"><span class="tag">Mask</span><span class="tag">Binary</span></div>
+                    <i class="fas fa-arrow-right" style="color: var(--primary);"></i>
+                </div>
+            </div>
+            <div class="tool-card" onclick="scrollToSection('calculators')">
+                <div class="tool-icon green"><i class="fas fa-door-open"></i></div>
+                <h3>Port Scanner <span class="badge badge-free">Free</span></h3>
+                <p>Check common port status, lookup service names, and detect open ports on targets.</p>
+                <div class="tool-meta">
+                    <div class="tool-tags"><span class="tag">TCP</span><span class="tag">UDP</span></div>
+                    <i class="fas fa-arrow-right" style="color: var(--primary);"></i>
+                </div>
+            </div>
+            <div class="tool-card premium" onclick="showPremiumAlert()">
+                <div class="tool-icon orange"><i class="fas fa-fingerprint"></i></div>
+                <h3>MAC Address Lookup <span class="badge badge-premium">Pro</span></h3>
+                <p>Identify vendor/manufacturer from MAC address OUI. Bulk lookup support for enterprise.</p>
+                <div class="tool-meta">
+                    <div class="tool-tags"><span class="tag">OUI</span><span class="tag">Vendor</span></div>
+                    <i class="fas fa-lock" style="color: var(--warning);"></i>
+                </div>
+            </div>
+            <div class="tool-card" onclick="scrollToSection('calculators')">
+                <div class="tool-icon red"><i class="fas fa-shield-alt"></i></div>
+                <h3>IP Classifier <span class="badge badge-free">Free</span></h3>
+                <p>Classify IP addresses by type: Private, Public, Loopback, Multicast, Link-local.</p>
+                <div class="tool-meta">
+                    <div class="tool-tags"><span class="tag">Classify</span><span class="tag">Validate</span></div>
+                    <i class="fas fa-arrow-right" style="color: var(--primary);"></i>
+                </div>
+            </div>
+            <div class="tool-card premium" onclick="showPremiumAlert()">
+                <div class="tool-icon blue"><i class="fas fa-route"></i></div>
+                <h3>Route Summarization <span class="badge badge-premium">Pro</span></h3>
+                <p>Supernet calculation and route aggregation for efficient routing table management.</p>
+                <div class="tool-meta">
+                    <div class="tool-tags"><span class="tag">Supernet</span><span class="tag">Aggregation</span></div>
+                    <i class="fas fa-lock" style="color: var(--warning);"></i>
+                </div>
+            </div>
+            <div class="tool-card" onclick="scrollToSection('calculators')">
+                <div class="tool-icon purple"><i class="fas fa-random"></i></div>
+                <h3>Password Generator <span class="badge badge-free">Free</span></h3>
+                <p>Generate secure passwords with entropy calculation. Customizable length and complexity.</p>
+                <div class="tool-meta">
+                    <div class="tool-tags"><span class="tag">Entropy</span><span class="tag">Secure</span></div>
+                    <i class="fas fa-arrow-right" style="color: var(--primary);"></i>
+                </div>
+            </div>
+            <div class="tool-card premium" onclick="showPremiumAlert()">
+                <div class="tool-icon green"><i class="fas fa-file-code"></i></div>
+                <h3>ACL Generator <span class="badge badge-premium">Pro</span></h3>
+                <p>Generate Cisco ACL rules, iptables, and firewall configs from natural language.</p>
+                <div class="tool-meta">
+                    <div class="tool-tags"><span class="tag">Cisco</span><span class="tag">iptables</span></div>
+                    <i class="fas fa-lock" style="color: var(--warning);"></i>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="calculators">
+        <div class="section-header">
+            <h2>Interactive Calculators</h2>
+            <p>Real-time network calculations with visual breakdowns and binary representation.</p>
+        </div>
+        <div class="calc-container">
+            <div class="calc-tabs">
+                <button class="calc-tab active" onclick="switchCalc('subnet')">Subnet</button>
+                <button class="calc-tab" onclick="switchCalc('cidr')">CIDR</button>
+                <button class="calc-tab" onclick="switchCalc('port')">Port Lookup</button>
+                <button class="calc-tab" onclick="switchCalc('ipclass')">IP Classifier</button>
+                <button class="calc-tab" onclick="switchCalc('password')">Password</button>
+            </div>
+
+            <div class="calc-panel active" id="calc-subnet">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>IP Address</label>
+                        <input type="text" id="subnetIp" placeholder="192.168.1.0" value="192.168.1.0">
+                    </div>
+                    <div class="input-group">
+                        <label>CIDR / Subnet Mask</label>
+                        <select id="subnetCidr">
+                            <option value="24">/24 (255.255.255.0)</option>
+                            <option value="16">/16 (255.255.0.0)</option>
+                            <option value="8">/8 (255.0.0.0)</option>
+                            <option value="30">/30 (255.255.255.252)</option>
+                            <option value="26">/26 (255.255.255.192)</option>
+                            <option value="32">/32 (255.255.255.255)</option>
+                        </select>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="calculateSubnet()" style="width: 100%;">
+                    <i class="fas fa-calculator"></i> Calculate Subnet
+                </button>
+                <div class="calc-results" id="subnetResults">
+                    <div class="result-grid">
+                        <div class="result-item"><label>Network Address</label><value id="resNetwork">-</value></div>
+                        <div class="result-item"><label>Subnet Mask</label><value id="resMask">-</value></div>
+                        <div class="result-item"><label>Broadcast</label><value id="resBroadcast">-</value></div>
+                        <div class="result-item"><label>Usable Range</label><value id="resRange">-</value></div>
+                        <div class="result-item"><label>Total Hosts</label><value id="resHosts">-</value></div>
+                        <div class="result-item"><label>Wildcard Mask</label><value id="resWildcard">-</value></div>
+                        <div class="result-item"><label>Binary Mask</label><value id="resBinary" style="font-size: 0.8rem;">-</value></div>
+                        <div class="result-item"><label>IP Class</label><value id="resClass">-</value></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calc-panel" id="calc-cidr">
+                <div class="input-group">
+                    <label>CIDR Notation</label>
+                    <input type="text" id="cidrInput" placeholder="10.0.0.0/8" value="10.0.0.0/8">
+                </div>
+                <button class="btn btn-primary" onclick="calculateCidr()" style="width: 100%;">
+                    <i class="fas fa-exchange-alt"></i> Convert CIDR
+                </button>
+                <div class="calc-results" id="cidrResults">
+                    <div class="result-grid">
+                        <div class="result-item"><label>Network</label><value id="cidrNetwork">-</value></div>
+                        <div class="result-item"><label>First Usable</label><value id="cidrFirst">-</value></div>
+                        <div class="result-item"><label>Last Usable</label><value id="cidrLast">-</value></div>
+                        <div class="result-item"><label>Total IPs</label><value id="cidrTotal">-</value></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calc-panel" id="calc-port">
+                <div class="input-group">
+                    <label>Port Number or Service</label>
+                    <input type="text" id="portInput" placeholder="80 or HTTP" value="80">
+                </div>
+                <button class="btn btn-primary" onclick="lookupPort()" style="width: 100%;">
+                    <i class="fas fa-search"></i> Lookup Port
+                </button>
+                <div class="calc-results" id="portResults">
+                    <div class="result-grid">
+                        <div class="result-item"><label>Port Number</label><value id="portNum">-</value></div>
+                        <div class="result-item"><label>Service</label><value id="portService">-</value></div>
+                        <div class="result-item"><label>Protocol</label><value id="portProto">-</value></div>
+                        <div class="result-item"><label>Description</label><value id="portDesc" style="font-size: 0.85rem;">-</value></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calc-panel" id="calc-ipclass">
+                <div class="input-group">
+                    <label>IP Address</label>
+                    <input type="text" id="classifyIp" placeholder="192.168.1.1" value="192.168.1.1">
+                </div>
+                <button class="btn btn-primary" onclick="classifyIp()" style="width: 100%;">
+                    <i class="fas fa-search"></i> Classify IP
+                </button>
+                <div class="calc-results" id="classifyResults">
+                    <div class="result-grid">
+                        <div class="result-item"><label>Type</label><value id="ipType">-</value></div>
+                        <div class="result-item"><label>Class</label><value id="ipClass">-</value></div>
+                        <div class="result-item"><label>Private?</label><value id="ipPrivate">-</value></div>
+                        <div class="result-item"><label>Loopback?</label><value id="ipLoopback">-</value></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="calc-panel" id="calc-password">
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Length</label>
+                        <input type="number" id="passLength" value="16" min="8" max="64">
+                    </div>
+                    <div class="input-group">
+                        <label>Options</label>
+                        <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 400;">
+                                <input type="checkbox" id="passUpper" checked> A-Z
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 400;">
+                                <input type="checkbox" id="passNumbers" checked> 0-9
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; font-weight: 400;">
+                                <input type="checkbox" id="passSymbols" checked> !@#
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary" onclick="generatePassword()" style="width: 100%;">
+                    <i class="fas fa-key"></i> Generate Password
+                </button>
+                <div class="calc-results" id="passResults">
+                    <div class="result-grid">
+                        <div class="result-item" style="grid-column: 1 / -1;">
+                            <label>Generated Password</label>
+                            <value id="generatedPass" style="font-size: 1.3rem; word-break: break-all;">-</value>
+                        </div>
+                        <div class="result-item"><label>Entropy</label><value id="passEntropy">-</value></div>
+                        <div class="result-item"><label>Strength</label><value id="passStrength">-</value></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="learn">
+        <div class="section-header">
+            <h2>Learning Hub</h2>
+            <p>Structured learning paths from beginner to advanced. Track your progress and earn certificates.</p>
+        </div>
+        <div class="learning-grid">
+            <div class="learning-card">
+                <div class="learning-header">
+                    <h3><i class="fas fa-book-open" style="color: var(--primary); margin-right: 8px;"></i> Network Fundamentals</h3>
+                    <span class="badge badge-free">Free</span>
+                </div>
+                <div class="learning-body">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Master the basics of IP addressing, subnetting, and network protocols.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> OSI & TCP/IP Models</li>
+                        <li><i class="fas fa-check"></i> IPv4 & IPv6 Addressing</li>
+                        <li><i class="fas fa-check"></i> Subnetting Mastery</li>
+                        <li><i class="fas fa-check"></i> Common Protocols (TCP, UDP, ICMP)</li>
+                        <li><i class="fas fa-check"></i> 50+ Practice Questions</li>
+                    </ul>
+                    <div style="margin-top: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">Progress</span>
+                            <span style="font-size: 0.85rem; color: var(--primary);">0%</span>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="scrollToSection('quiz')">Start Learning</button>
+                </div>
+            </div>
+            <div class="learning-card">
+                <div class="learning-header">
+                    <h3><i class="fas fa-shield-alt" style="color: var(--secondary); margin-right: 8px;"></i> Security Essentials</h3>
+                    <span class="badge badge-free">Free</span>
+                </div>
+                <div class="learning-body">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Understand firewalls, ACLs, encryption, and security best practices.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> Firewall Types & Rules</li>
+                        <li><i class="fas fa-check"></i> Access Control Lists</li>
+                        <li><i class="fas fa-check"></i> Encryption Basics</li>
+                        <li><i class="fas fa-check"></i> VPN & Tunneling</li>
+                        <li><i class="fas fa-check"></i> 75+ Practice Questions</li>
+                    </ul>
+                    <div style="margin-top: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">Progress</span>
+                            <span style="font-size: 0.85rem; color: var(--primary);">0%</span>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                    </div>
+                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="scrollToSection('quiz')">Start Learning</button>
+                </div>
+            </div>
+            <div class="learning-card">
+                <div class="learning-header">
+                    <h3><i class="fas fa-certificate" style="color: var(--accent); margin-right: 8px;"></i> CompTIA Network+ Prep</h3>
+                    <span class="badge badge-premium">Pro</span>
+                </div>
+                <div class="learning-body">
+                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Full exam preparation with timed simulations and detailed explanations.</p>
+                    <ul class="feature-list">
+                        <li><i class="fas fa-check"></i> 500+ Exam Questions</li>
+                        <li><i class="fas fa-check"></i> Timed Exam Simulations</li>
+                        <li><i class="fas fa-check"></i> Performance Analytics</li>
+                        <li><i class="fas fa-check"></i> Weak Area Detection</li>
+                        <li><i class="fas fa-check"></i> Certificate on Completion</li>
+                    </ul>
+                    <div style="margin-top: 1rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                            <span style="font-size: 0.85rem; color: var(--text-muted);">Progress</span>
+                            <span style="font-size: 0.85rem; color: var(--primary);">0%</span>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                    </div>
+                    <button class="btn btn-success" style="width: 100%; margin-top: 1rem;" onclick="showPremiumAlert()">
+                        <i class="fas fa-crown"></i> Upgrade to Pro
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="quiz">
+        <div class="section-header">
+            <h2>Interactive Quiz</h2>
+            <p>Test your knowledge with timed quizzes. Instant feedback and detailed explanations.</p>
+        </div>
+        <div class="quiz-container" id="quizContainer">
+            <div class="quiz-header">
+                <div>
+                    <h3 id="quizTitle">Network Fundamentals Quiz</h3>
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">Question <span id="currentQ">1</span> of <span id="totalQ">5</span></p>
+                </div>
+                <div class="quiz-timer" id="quizTimer">
+                    <i class="fas fa-clock"></i> <span id="timerDisplay">05:00</span>
+                </div>
+            </div>
+            <div id="quizContent"></div>
+            <div style="display: flex; justify-content: space-between; margin-top: 2rem;">
+                <button class="btn btn-outline" onclick="prevQuestion()" id="prevBtn" style="display: none;">
+                    <i class="fas fa-arrow-left"></i> Previous
+                </button>
+                <button class="btn btn-primary" onclick="nextQuestion()" id="nextBtn">
+                    Next <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+        <div class="quiz-container" id="quizResults" style="display: none; text-align: center;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+            <h2>Quiz Complete!</h2>
+            <p style="font-size: 1.5rem; margin: 1rem 0;">Score: <span id="finalScore" style="color: var(--primary); font-weight: 700;">0/5</span></p>
+            <p id="resultMessage" style="color: var(--text-secondary); margin-bottom: 2rem;"></p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn btn-primary" onclick="restartQuiz()">Try Again</button>
+                <button class="btn btn-outline" onclick="scrollToSection('learn')">More Courses</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="section" id="pricing">
+        <div class="section-header">
+            <h2>Simple Pricing</h2>
+            <p>Start free, upgrade when you need advanced features. No hidden fees.</p>
+        </div>
+        <div class="pricing-grid">
+            <div class="pricing-card">
+                <h3>Free</h3>
+                <p style="color: var(--text-muted);">For students & hobbyists</p>
+                <div class="price">$0<span>/month</span></div>
+                <ul class="feature-list" style="text-align: left; margin: 2rem 0;">
+                    <li><i class="fas fa-check"></i> 5 Network Calculators</li>
+                    <li><i class="fas fa-check"></i> Basic Quizzes (50 Qs)</li>
+                    <li><i class="fas fa-check"></i> IP & Subnet Tools</li>
+                    <li><i class="fas fa-check"></i> Port Lookup</li>
+                    <li><i class="fas fa-check"></i> Community Support</li>
+                </ul>
+                <button class="btn btn-outline" style="width: 100%;" onclick="openModal('signup')">Get Started</button>
+            </div>
+            <div class="pricing-card featured">
+                <h3>Pro</h3>
+                <p style="color: var(--text-muted);">For serious learners</p>
+                <div class="price">$9<span>/month</span></div>
+                <ul class="feature-list" style="text-align: left; margin: 2rem 0;">
+                    <li><i class="fas fa-check"></i> All 15+ Tools</li>
+                    <li><i class="fas fa-check"></i> 500+ Quiz Questions</li>
+                    <li><i class="fas fa-check"></i> Timed Exam Mode</li>
+                    <li><i class="fas fa-check"></i> Progress Tracking</li>
+                    <li><i class="fas fa-check"></i> MAC Lookup & ACL Gen</li>
+                    <li><i class="fas fa-check"></i> Priority Support</li>
+                </ul>
+                <button class="btn btn-primary" style="width: 100%;" onclick="openModal('signup')">Upgrade Now</button>
+            </div>
+            <div class="pricing-card">
+                <h3>Team</h3>
+                <p style="color: var(--text-muted);">For classrooms & teams</p>
+                <div class="price">$29<span>/month</span></div>
+                <ul class="feature-list" style="text-align: left; margin: 2rem 0;">
+                    <li><i class="fas fa-check"></i> Everything in Pro</li>
+                    <li><i class="fas fa-check"></i> 5 Team Members</li>
+                    <li><i class="fas fa-check"></i> Admin Dashboard</li>
+                    <li><i class="fas fa-check"></i> Custom Quizzes</li>
+                    <li><i class="fas fa-check"></i> API Access</li>
+                    <li><i class="fas fa-check"></i> Dedicated Support</li>
+                </ul>
+                <button class="btn btn-outline" style="width: 100%;" onclick="openModal('signup')">Contact Sales</button>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo" style="font-size: 1.3rem;">
+                    <div class="logo-icon" style="width: 35px; height: 35px; font-size: 1rem;"><i class="fas fa-network-wired"></i></div>
+                    <span>NetForge</span>
+                </a>
+                <p>Empowering the next generation of network engineers and cybersecurity professionals with cutting-edge tools and education.</p>
+                <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <a href="#" style="color: var(--text-muted); font-size: 1.2rem;"><i class="fab fa-github"></i></a>
+                    <a href="#" style="color: var(--text-muted); font-size: 1.2rem;"><i class="fab fa-twitter"></i></a>
+                    <a href="#" style="color: var(--text-muted); font-size: 1.2rem;"><i class="fab fa-discord"></i></a>
+                    <a href="#" style="color: var(--text-muted); font-size: 1.2rem;"><i class="fab fa-linkedin"></i></a>
+                </div>
+            </div>
+            <div class="footer-links">
+                <h4>Tools</h4>
+                <ul>
+                    <li><a href="#">Subnet Calculator</a></li>
+                    <li><a href="#">CIDR Converter</a></li>
+                    <li><a href="#">Port Scanner</a></li>
+                    <li><a href="#">IP Classifier</a></li>
+                    <li><a href="#">Password Gen</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Learn</h4>
+                <ul>
+                    <li><a href="#">Network Fundamentals</a></li>
+                    <li><a href="#">Security Essentials</a></li>
+                    <li><a href="#">CompTIA Network+</a></li>
+                    <li><a href="#">Cisco CCNA</a></li>
+                    <li><a href="#">Quiz Center</a></li>
+                </ul>
+            </div>
+            <div class="footer-links">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Privacy</a></li>
+                    <li><a href="#">Terms</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p> NetForge. Built for cybersecurity students and network professionals. Open source on GitHub.</p>
+        </div>
+    </footer>
+
+    <div class="modal-overlay" id="loginModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('login')">&times;</button>
+            <h2>Welcome Back</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Sign in to access your progress and premium tools.</p>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign In</button>
+            <p style="text-align: center; margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+                Don't have an account? <a href="#" style="color: var(--primary);" onclick="closeModal('login'); openModal('signup')">Sign up</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="signupModal">
+        <div class="modal">
+            <button class="modal-close" onclick="closeModal('signup')">&times;</button>
+            <h2>Join NetForge</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Start your network mastery journey today.</p>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" placeholder="John Doe">
+            </div>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" placeholder="you@example.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Create Account</button>
+            <p style="text-align: center; margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+                Already have an account? <a href="#" style="color: var(--primary);" onclick="closeModal('signup'); openModal('login')">Sign in</a>
+            </p>
+        </div>
+    </div>
+
+
+    <script>
+        // Binary rain animation
+        function createBinaryRain() {
+            const container = document.getElementById('binaryRain');
+            const chars = '01';
+            const columns = Math.floor(window.innerWidth / 20);
+
+            for (let i = 0; i < columns; i++) {
+                const span = document.createElement('span');
+                span.style.position = 'absolute';
+                span.style.left = i * 20 + 'px';
+                span.style.top = '-20px';
+                span.style.color = 'var(--primary)';
+                span.style.fontSize = '14px';
+                span.style.animation = `fall ${Math.random() * 5 + 3}s linear infinite`;
+                span.style.animationDelay = Math.random() * 5 + 's';
+                span.textContent = chars[Math.floor(Math.random() * chars.length)];
+                container.appendChild(span);
+            }
+        }
+
+        // Terminal typing effect
+        const terminalCommands = [
+            { cmd: 'subnetcalc 192.168.1.0/24', output: ['Network: 192.168.1.0/24', 'Netmask: 255.255.255.0', 'Broadcast: 192.168.1.255', 'Usable Range: 192.168.1.1 - 192.168.1.254', 'Total Hosts: 254'] },
+            { cmd: 'portscan 192.168.1.1', output: ['22/tcp   open   ssh', '80/tcp   open   http', '443/tcp  open   https', '3306/tcp closed mysql'] },
+            { cmd: 'ipclassify 10.0.0.1', output: ['Type: Private', 'Class: A', 'Range: 10.0.0.0 - 10.255.255.255', 'RFC: 1918'] }
+        ];
+
+        let currentCmd = 0;
+        function animateTerminal() {
+            const terminal = document.getElementById('terminalText');
+            const data = terminalCommands[currentCmd];
+
+            let html = `<span class="cmd">$</span> ${data.cmd}<br>`;
+            data.output.forEach(line => {
+                const parts = line.split(/\s{2,}/);
+                html += `<span class="output">${parts[0]}</span>${parts[1] ? '   ' + parts[1] : ''}<br>`;
+            });
+            html += `<span class="cmd">$</span> <span class="comment"># Ready for next command...</span>`;
+
+            terminal.innerHTML = html;
+            currentCmd = (currentCmd + 1) % terminalCommands.length;
+        }
+
+        setInterval(animateTerminal, 4000);
+
+        // Navigation scroll
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Modal functions
+        function openModal(type) {
+            document.getElementById(type + 'Modal').classList.add('active');
+        }
+
+        function closeModal(type) {
+            document.getElementById(type + 'Modal').classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) overlay.classList.remove('active');
+            });
+        });
+
+        // Premium alert
+        function showPremiumAlert() {
+            alert('This is a premium feature. Upgrade to Pro to unlock it!');
+        }
+
+        // Calculator switching
+        function switchCalc(calc) {
+            document.querySelectorAll('.calc-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.calc-panel').forEach(panel => panel.classList.remove('active'));
+
+            event.target.classList.add('active');
+            document.getElementById('calc-' + calc).classList.add('active');
+        }
+
+        // Subnet Calculator
+        function calculateSubnet() {
+            const ip = document.getElementById('subnetIp').value;
+            const cidr = parseInt(document.getElementById('subnetCidr').value);
+
+            if (!isValidIP(ip)) {
+                alert('Please enter a valid IP address');
+                return;
+            }
+
+            const ipParts = ip.split('.').map(Number);
+            const ipLong = (ipParts[0] << 24) | (ipParts[1] << 16) | (ipParts[2] << 8) | ipParts[3];
+
+            const mask = 0xFFFFFFFF << (32 - cidr);
+            const networkLong = ipLong & mask;
+            const broadcastLong = networkLong | (~mask >>> 0);
+
+            const network = longToIP(networkLong);
+            const broadcast = longToIP(broadcastLong);
+            const firstUsable = longToIP(networkLong + 1);
+            const lastUsable = longToIP(broadcastLong - 1);
+            const totalHosts = Math.pow(2, 32 - cidr) - 2;
+            const subnetMask = longToIP(mask);
+            const wildcard = longToIP(~mask >>> 0);
+
+            const binaryMask = ipParts.map(p => p.toString(2).padStart(8, '0')).join('.');
+            const ipClass = ipParts[0] >= 1 && ipParts[0] <= 126 ? 'A' : 
+                           ipParts[0] >= 128 && ipParts[0] <= 191 ? 'B' : 
+                           ipParts[0] >= 192 && ipParts[0] <= 223 ? 'C' : 'D/E';
+
+            document.getElementById('resNetwork').textContent = network + '/' + cidr;
+            document.getElementById('resMask').textContent = subnetMask;
+            document.getElementById('resBroadcast').textContent = broadcast;
+            document.getElementById('resRange').textContent = firstUsable + ' - ' + lastUsable;
+            document.getElementById('resHosts').textContent = totalHosts > 0 ? totalHosts : 0;
+            document.getElementById('resWildcard').textContent = wildcard;
+            document.getElementById('resBinary').textContent = binaryMask;
+            document.getElementById('resClass').textContent = ipClass;
+
+            document.getElementById('subnetResults').classList.add('show');
+        }
+
+        // CIDR Calculator
+        function calculateCidr() {
+            const input = document.getElementById('cidrInput').value;
+            const match = input.match(/^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\/(\d{1,2})$/);
+
+            if (!match) {
+                alert('Please enter valid CIDR notation (e.g., 10.0.0.0/8)');
+                return;
+            }
+
+            const ip = match[1];
+            const cidr = parseInt(match[2]);
+            const ipParts = ip.split('.').map(Number);
+            const ipLong = (ipParts[0] << 24) | (ipParts[1] << 16) | (ipParts[2] << 8) | ipParts[3];
+
+            const mask = 0xFFFFFFFF << (32 - cidr);
+            const networkLong = ipLong & mask;
+            const broadcastLong = networkLong | (~mask >>> 0);
+
+            document.getElementById('cidrNetwork').textContent = longToIP(networkLong) + '/' + cidr;
+            document.getElementById('cidrFirst').textContent = longToIP(networkLong + 1);
+            document.getElementById('cidrLast').textContent = longToIP(broadcastLong - 1);
+            document.getElementById('cidrTotal').textContent = Math.pow(2, 32 - cidr);
+
+            document.getElementById('cidrResults').classList.add('show');
+        }
+
+        // Port Lookup
+        const portDatabase = {
+            '20': { service: 'FTP-DATA', proto: 'TCP', desc: 'File Transfer Protocol (data)' },
+            '21': { service: 'FTP', proto: 'TCP', desc: 'File Transfer Protocol (control)' },
+            '22': { service: 'SSH', proto: 'TCP', desc: 'Secure Shell' },
+            '23': { service: 'TELNET', proto: 'TCP', desc: 'Telnet protocol' },
+            '25': { service: 'SMTP', proto: 'TCP', desc: 'Simple Mail Transfer Protocol' },
+            '53': { service: 'DNS', proto: 'TCP/UDP', desc: 'Domain Name System' },
+            '67': { service: 'DHCP', proto: 'UDP', desc: 'Dynamic Host Configuration Protocol' },
+            '68': { service: 'DHCP', proto: 'UDP', desc: 'Dynamic Host Configuration Protocol' },
+            '80': { service: 'HTTP', proto: 'TCP', desc: 'Hypertext Transfer Protocol' },
+            '110': { service: 'POP3', proto: 'TCP', desc: 'Post Office Protocol v3' },
+            '143': { service: 'IMAP', proto: 'TCP', desc: 'Internet Message Access Protocol' },
+            '443': { service: 'HTTPS', proto: 'TCP', desc: 'HTTP Secure (TLS/SSL)' },
+            '3306': { service: 'MySQL', proto: 'TCP', desc: 'MySQL Database' },
+            '3389': { service: 'RDP', proto: 'TCP', desc: 'Remote Desktop Protocol' },
+            '5432': { service: 'PostgreSQL', proto: 'TCP', desc: 'PostgreSQL Database' },
+            '8080': { service: 'HTTP-ALT', proto: 'TCP', desc: 'Alternative HTTP port' },
+            'ftp': { port: '21', proto: 'TCP', desc: 'File Transfer Protocol' },
+            'ssh': { port: '22', proto: 'TCP', desc: 'Secure Shell' },
+            'http': { port: '80', proto: 'TCP', desc: 'Hypertext Transfer Protocol' },
+            'https': { port: '443', proto: 'TCP', desc: 'HTTP Secure' },
+            'smtp': { port: '25', proto: 'TCP', desc: 'Simple Mail Transfer Protocol' },
+            'dns': { port: '53', proto: 'TCP/UDP', desc: 'Domain Name System' },
+            'dhcp': { port: '67/68', proto: 'UDP', desc: 'Dynamic Host Configuration' },
+            'mysql': { port: '3306', proto: 'TCP', desc: 'MySQL Database' },
+            'rdp': { port: '3389', proto: 'TCP', desc: 'Remote Desktop Protocol' }
+        };
+
+        function lookupPort() {
+            const input = document.getElementById('portInput').value.trim().toLowerCase();
+            const data = portDatabase[input];
+
+            if (!data) {
+                document.getElementById('portNum').textContent = input;
+                document.getElementById('portService').textContent = 'Unknown';
+                document.getElementById('portProto').textContent = '-';
+                document.getElementById('portDesc').textContent = 'No known service for this port';
+            } else if (data.port) {
+                document.getElementById('portNum').textContent = data.port;
+                document.getElementById('portService').textContent = input.toUpperCase();
+                document.getElementById('portProto').textContent = data.proto;
+                document.getElementById('portDesc').textContent = data.desc;
+            } else {
+                document.getElementById('portNum').textContent = input;
+                document.getElementById('portService').textContent = data.service;
+                document.getElementById('portProto').textContent = data.proto;
+                document.getElementById('portDesc').textContent = data.desc;
+            }
+
+            document.getElementById('portResults').classList.add('show');
+        }
+
+        // IP Classifier
+        function classifyIp() {
+            const ip = document.getElementById('classifyIp').value;
+
+            if (!isValidIP(ip)) {
+                alert('Please enter a valid IP address');
+                return;
+            }
+
+            const parts = ip.split('.').map(Number);
+            const first = parts[0];
+
+            let type = 'Public';
+            let ipClass = 'A';
+            let isPrivate = 'No';
+            let isLoopback = 'No';
+
+            if (first === 127) {
+                type = 'Loopback';
+                isLoopback = 'Yes';
+                ipClass = 'A';
+            } else if (first >= 1 && first <= 126) {
+                ipClass = 'A';
+                if (first === 10) { type = 'Private'; isPrivate = 'Yes'; }
+            } else if (first >= 128 && first <= 191) {
+                ipClass = 'B';
+                if (first === 172 && parts[1] >= 16 && parts[1] <= 31) { type = 'Private'; isPrivate = 'Yes'; }
+            } else if (first >= 192 && first <= 223) {
+                ipClass = 'C';
+                if (first === 192 && parts[1] === 168) { type = 'Private'; isPrivate = 'Yes'; }
+            } else if (first >= 224 && first <= 239) {
+                ipClass = 'D (Multicast)';
+                type = 'Multicast';
+            } else {
+                ipClass = 'E (Experimental)';
+                type = 'Experimental';
+            }
+
+            if (first === 169 && parts[1] === 254) {
+                type = 'Link-local';
+                isPrivate = 'Yes (APIPA)';
+            }
+
+            document.getElementById('ipType').textContent = type;
+            document.getElementById('ipClass').textContent = ipClass;
+            document.getElementById('ipPrivate').textContent = isPrivate;
+            document.getElementById('ipLoopback').textContent = isLoopback;
+
+            document.getElementById('classifyResults').classList.add('show');
+        }
+
+        // Password Generator
+        function generatePassword() {
+            const length = parseInt(document.getElementById('passLength').value);
+            const useUpper = document.getElementById('passUpper').checked;
+            const useNumbers = document.getElementById('passNumbers').checked;
+            const useSymbols = document.getElementById('passSymbols').checked;
+
+            let chars = 'abcdefghijklmnopqrstuvwxyz';
+            if (useUpper) chars += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if (useNumbers) chars += '0123456789';
+            if (useSymbols) chars += '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+            let password = '';
+            for (let i = 0; i < length; i++) {
+                password += chars[Math.floor(Math.random() * chars.length)];
+            }
+
+            const poolSize = chars.length;
+            const entropy = Math.log2(Math.pow(poolSize, length)).toFixed(2);
+
+            let strength = 'Weak';
+            if (entropy > 80) strength = 'Very Strong';
+            else if (entropy > 60) strength = 'Strong';
+            else if (entropy > 40) strength = 'Moderate';
+
+            document.getElementById('generatedPass').textContent = password;
+            document.getElementById('passEntropy').textContent = entropy + ' bits';
+            document.getElementById('passStrength').textContent = strength;
+
+            document.getElementById('passResults').classList.add('show');
+        }
+
+        // Helper functions
+        function isValidIP(ip) {
+            const parts = ip.split('.');
+            if (parts.length !== 4) return false;
+            return parts.every(p => {
+                const num = parseInt(p);
+                return !isNaN(num) && num >= 0 && num <= 255;
+            });
+        }
+
+        function longToIP(long) {
+            return [
+                (long >>> 24) & 0xFF,
+                (long >>> 16) & 0xFF,
+                (long >>> 8) & 0xFF,
+                long & 0xFF
+            ].join('.');
+        }
+
+        // Quiz System
+        const quizQuestions = [
+            {
+                question: 'What is the default subnet mask for a Class C IP address?',
+                options: ['255.0.0.0', '255.255.0.0', '255.255.255.0', '255.255.255.255'],
+                correct: 2,
+                explanation: 'Class C addresses use the first 24 bits for the network portion, resulting in a 255.255.255.0 mask.'
+            },
+            {
+                question: 'Which protocol is used for secure remote administration of network devices?',
+                options: ['Telnet', 'FTP', 'SSH', 'HTTP'],
+                correct: 2,
+                explanation: 'SSH (Secure Shell) provides encrypted communication for remote administration, unlike Telnet which sends data in plaintext.'
+            },
+            {
+                question: 'What does CIDR stand for?',
+                options: ['Classless Inter-Domain Routing', 'Classful Internet Data Routing', 'Common IP Distribution Range', 'Centralized IP Domain Registry'],
+                correct: 0,
+                explanation: 'CIDR (Classless Inter-Domain Routing) replaced classful networking to allow more flexible IP allocation.'
+            },
+            {
+                question: 'Which port does DNS primarily use?',
+                options: ['21', '53', '80', '443'],
+                correct: 1,
+                explanation: 'DNS uses port 53 for both TCP and UDP communications.'
+            },
+            {
+                question: 'What is the purpose of a wildcard mask in ACLs?',
+                options: ['To encrypt traffic', 'To define which bits to ignore', 'To compress data', 'To authenticate users'],
+                correct: 1,
+                explanation: 'A wildcard mask inverts the subnet mask - 0 means "must match", 1 means "ignore".'
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = [];
+        let quizTimer = 300; // 5 minutes
+        let timerInterval;
+
+        function loadQuiz() {
+            const container = document.getElementById('quizContent');
+            const q = quizQuestions[currentQuestion];
+
+            document.getElementById('currentQ').textContent = currentQuestion + 1;
+            document.getElementById('totalQ').textContent = quizQuestions.length;
+
+            let html = `<div class="question-card"><h4>${q.question}</h4><div class="options">`;
+            q.options.forEach((opt, idx) => {
+                const selected = userAnswers[currentQuestion] === idx ? 'selected' : '';
+                html += `<div class="option ${selected}" onclick="selectOption(${idx})"><div class="option-letter">${String.fromCharCode(65 + idx)}</div><div>${opt}</div></div>`;
+            });
+            html += '</div></div>';
+
+            container.innerHTML = html;
+
+            document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'flex' : 'none';
+            document.getElementById('nextBtn').innerHTML = currentQuestion === quizQuestions.length - 1 ? 'Finish <i class="fas fa-check"></i>' : 'Next <i class="fas fa-arrow-right"></i>';
+        }
+
+        function selectOption(idx) {
+            userAnswers[currentQuestion] = idx;
+            document.querySelectorAll('.option').forEach((opt, i) => {
+                opt.classList.toggle('selected', i === idx);
+            });
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < quizQuestions.length - 1) {
+                currentQuestion++;
+                loadQuiz();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                loadQuiz();
+            }
+        }
+
+        function finishQuiz() {
+            clearInterval(timerInterval);
+
+            let score = 0;
+            userAnswers.forEach((ans, idx) => {
+                if (ans === quizQuestions[idx].correct) score++;
+            });
+
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('quizResults').style.display = 'block';
+            document.getElementById('finalScore').textContent = `${score}/${quizQuestions.length}`;
+
+            const percentage = (score / quizQuestions.length) * 100;
+            let message = '';
+            if (percentage >= 80) message = 'Excellent! You have a strong grasp of networking fundamentals.';
+            else if (percentage >= 60) message = 'Good job! Review the topics you missed and try again.';
+            else message = 'Keep studying! Check out our learning modules to improve your skills.';
+
+            document.getElementById('resultMessage').textContent = message;
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = [];
+            quizTimer = 300;
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('quizResults').style.display = 'none';
+            loadQuiz();
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                quizTimer--;
+                const mins = Math.floor(quizTimer / 60).toString().padStart(2, '0');
+                const secs = (quizTimer % 60).toString().padStart(2, '0');
+                document.getElementById('timerDisplay').textContent = `${mins}:${secs}`;
+
+                if (quizTimer <= 60) {
+                    document.getElementById('quizTimer').classList.add('urgent');
+                }
+
+                if (quizTimer <= 0) {
+                    finishQuiz();
+                }
+            }, 1000);
+        }
+
+        // Active nav link
+        window.addEventListener('scroll', () => {
+            const sections = ['tools', 'calculators', 'learn', 'quiz', 'pricing'];
+            const scrollPos = window.scrollY + 100;
+
+            sections.forEach(id => {
+                const section = document.getElementById(id);
+                if (section && scrollPos >= section.offsetTop && scrollPos < section.offsetTop + section.offsetHeight) {
+                    document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+                    document.querySelector(`.nav-links a[href="#${id}"]`)?.classList.add('active');
+                }
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            createBinaryRain();
+            loadQuiz();
+            startTimer();
+        });
+    </script>
+</body>
+</html>
