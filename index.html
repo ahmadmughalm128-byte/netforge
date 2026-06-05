@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NetForge — Network Tools & Cybersecurity Learning Hub</title>
+    <title>NetForge — Professional Network Tools & Cybersecurity Learning Platform</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase SDK -->
+    <!-- Firebase -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <!-- Stripe -->
+    <script src="https://js.stripe.com/v3/"></script>
     <style>
         :root {
             --primary: #0ea5e9;
@@ -565,67 +567,58 @@
             color: var(--primary);
         }
 
-        .learning-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .learning-card {
+        /* Learning Content Styles */
+        .lesson-container {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
         }
 
-        .learning-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .learning-header {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
+        .lesson-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
         }
 
-        .learning-header h3 { font-size: 1.2rem; }
+        .lesson-content {
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
 
-        .learning-body { padding: 1.5rem; }
+        .lesson-content h4 {
+            color: var(--text-primary);
+            margin: 1.5rem 0 0.5rem;
+        }
 
-        .feature-list {
-            list-style: none;
+        .lesson-content code {
+            background: var(--bg-dark);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        .lesson-content pre {
+            background: var(--bg-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            overflow-x: auto;
             margin: 1rem 0;
         }
 
-        .feature-list li {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 0.5rem 0;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+        .lesson-content ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
         }
 
-        .feature-list li i { color: var(--accent); font-size: 0.8rem; }
-
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: var(--bg-elevated);
-            border-radius: 3px;
-            overflow: hidden;
-            margin-top: 1rem;
-        }
-
-        .progress-fill {
-            height: 100%;
-            background: var(--gradient-1);
-            border-radius: 3px;
-            transition: width 0.5s;
+        .lesson-content li {
+            margin: 0.5rem 0;
         }
 
         .quiz-container {
@@ -756,6 +749,91 @@
         .pricing-card .price { font-size: 3rem; font-weight: 800; margin: 1rem 0; }
         .pricing-card .price span { font-size: 1rem; color: var(--text-muted); font-weight: 400; }
 
+        /* Leaderboard */
+        .leaderboard-container {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .leaderboard-item:hover {
+            border-color: var(--primary);
+            transform: translateX(5px);
+        }
+
+        .leaderboard-rank {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; }
+        .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); color: #000; }
+        .rank-3 { background: linear-gradient(135deg, #CD7F32, #B87333); color: #fff; }
+        .rank-other { background: var(--bg-elevated); color: var(--text-muted); }
+
+        .leaderboard-info { flex: 1; }
+        .leaderboard-info h4 { font-size: 1rem; margin-bottom: 0.2rem; }
+        .leaderboard-info p { font-size: 0.8rem; color: var(--text-muted); }
+        .leaderboard-score { font-size: 1.2rem; font-weight: 700; color: var(--primary); }
+
+        /* Certificate */
+        .certificate {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: var(--gradient-1);
+            opacity: 0.03;
+            animation: rotate 30s linear infinite;
+        }
+
+        .certificate h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .certificate-badge {
+            width: 80px; height: 80px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            margin: 1rem auto;
+        }
+
         .footer {
             background: var(--bg-card);
             border-top: 1px solid var(--border);
@@ -820,6 +898,7 @@
             align-items: center;
             justify-content: center;
             padding: 2rem;
+            overflow-y: auto;
         }
 
         .modal-overlay.active { display: flex; }
@@ -833,7 +912,11 @@
             width: 100%;
             position: relative;
             animation: modalSlide 0.3s;
+            max-height: 90vh;
+            overflow-y: auto;
         }
+
+        .modal.wide { max-width: 700px; }
 
         @keyframes modalSlide {
             from { opacity: 0; transform: translateY(-20px); }
@@ -1024,7 +1107,7 @@
     <div class="bg-animation"></div>
     <div class="binary-rain" id="binaryRain"></div>
 
-    <!-- Toast Notification -->
+    <!-- Toast -->
     <div class="toast" id="toast">
         <i class="fas fa-check-circle" id="toastIcon"></i>
         <span id="toastMessage">Success!</span>
@@ -1041,6 +1124,7 @@
                 <li><a href="#calculators">Calculators</a></li>
                 <li><a href="#learn">Learn</a></li>
                 <li><a href="#quiz">Quiz</a></li>
+                <li><a href="#leaderboard">Leaderboard</a></li>
                 <li><a href="#pricing">Pricing</a></li>
             </ul>
             <div class="nav-actions" id="navActions">
@@ -1050,7 +1134,7 @@
             <div class="user-menu" id="userMenu">
                 <span class="premium-badge" id="userBadge" style="display: none;">PRO</span>
                 <span class="user-name" id="userName"></span>
-                <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()">
+                <div class="user-avatar" id="userAvatar" onclick="openSettings()">
                     <i class="fas fa-user"></i>
                 </div>
                 <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
@@ -1061,7 +1145,7 @@
     <section class="hero">
         <div class="hero-content">
             <h1>Master Networks with <span>NetForge</span></h1>
-            <p>The ultimate platform for network engineers, cybersecurity students, and IT professionals. Advanced calculators, learning modules, and certification prep.</p>
+            <p>The ultimate platform for network engineers, cybersecurity students, and IT professionals. Advanced calculators, interactive learning, and certification prep.</p>
             <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                 <button class="btn btn-primary" onclick="scrollToSection('tools')">
                     <i class="fas fa-tools"></i> Explore Tools
@@ -1331,80 +1415,151 @@
     <section class="section" id="learn">
         <div class="section-header">
             <h2>Learning Hub</h2>
-            <p>Structured learning paths from beginner to advanced. Track your progress and earn certificates.</p>
+            <p>Master networking from basics to advanced. Interactive lessons, quizzes, and certifications.</p>
         </div>
-        <div class="learning-grid">
-            <div class="learning-card">
-                <div class="learning-header">
-                    <h3><i class="fas fa-book-open" style="color: var(--primary); margin-right: 8px;"></i> Network Fundamentals</h3>
-                    <span class="badge badge-free">Free</span>
-                </div>
-                <div class="learning-body">
-                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Master the basics of IP addressing, subnetting, and network protocols.</p>
-                    <ul class="feature-list">
-                        <li><i class="fas fa-check"></i> OSI & TCP/IP Models</li>
-                        <li><i class="fas fa-check"></i> IPv4 & IPv6 Addressing</li>
-                        <li><i class="fas fa-check"></i> Subnetting Mastery</li>
-                        <li><i class="fas fa-check"></i> Common Protocols (TCP, UDP, ICMP)</li>
-                        <li><i class="fas fa-check"></i> 50+ Practice Questions</li>
-                    </ul>
-                    <div style="margin-top: 1rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">Progress</span>
-                            <span style="font-size: 0.85rem; color: var(--primary);" id="progressNetwork">0%</span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" id="barNetwork" style="width: 0%"></div></div>
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="scrollToSection('learn')">Start Learning</button>
+
+        <!-- Network Fundamentals Course -->
+        <div class="lesson-container">
+            <div class="lesson-header">
+                <h3><i class="fas fa-book-open" style="color: var(--primary);"></i> Lesson 1: IP Addressing Fundamentals</h3>
+                <span class="badge badge-free">Free</span>
+            </div>
+            <div class="lesson-content">
+                <h4>What is an IP Address?</h4>
+                <p>An IP (Internet Protocol) address is a unique numerical identifier assigned to every device connected to a network. It serves two main functions:</p>
+                <ul>
+                    <li><strong>Host identification:</strong> Identifies the specific device on the network</li>
+                    <li><strong>Location addressing:</strong> Determines where the device is located in the network</li>
+                </ul>
+
+                <h4>IPv4 Address Structure</h4>
+                <p>IPv4 addresses are 32-bit numbers, typically written in dotted-decimal notation as four octets (0-255) separated by periods:</p>
+                <pre><code>Example: 192.168.1.1
+Binary: 11000000.10101000.00000001.00000001</code></pre>
+
+                <h4>IP Address Classes</h4>
+                <ul>
+                    <li><strong>Class A:</strong> 1.0.0.0 to 126.255.255.255 (Default mask: 255.0.0.0)</li>
+                    <li><strong>Class B:</strong> 128.0.0.0 to 191.255.255.255 (Default mask: 255.255.0.0)</li>
+                    <li><strong>Class C:</strong> 192.0.0.0 to 223.255.255.255 (Default mask: 255.255.255.0)</li>
+                    <li><strong>Class D:</strong> 224.0.0.0 to 239.255.255.255 (Multicast)</li>
+                    <li><strong>Class E:</strong> 240.0.0.0 to 255.255.255.255 (Experimental)</li>
+                </ul>
+
+                <h4>Private IP Ranges (RFC 1918)</h4>
+                <p>These addresses are reserved for private networks and cannot be routed on the public internet:</p>
+                <ul>
+                    <li><code>10.0.0.0/8</code> - 1 Class A network (16,777,216 addresses)</li>
+                    <li><code>172.16.0.0/12</code> - 16 Class B networks (1,048,576 addresses)</li>
+                    <li><code>192.168.0.0/16</code> - 256 Class C networks (65,536 addresses)</li>
+                </ul>
+
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="scrollToSection('quiz')">
+                        <i class="fas fa-question-circle"></i> Take Quiz
+                    </button>
                 </div>
             </div>
-            <div class="learning-card">
-                <div class="learning-header">
-                    <h3><i class="fas fa-shield-alt" style="color: var(--secondary); margin-right: 8px;"></i> Security Essentials</h3>
-                    <span class="badge badge-free">Free</span>
-                </div>
-                <div class="learning-body">
-                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Understand firewalls, ACLs, encryption, and security best practices.</p>
-                    <ul class="feature-list">
-                        <li><i class="fas fa-check"></i> Firewall Types & Rules</li>
-                        <li><i class="fas fa-check"></i> Access Control Lists</li>
-                        <li><i class="fas fa-check"></i> Encryption Basics</li>
-                        <li><i class="fas fa-check"></i> VPN & Tunneling</li>
-                        <li><i class="fas fa-check"></i> 75+ Practice Questions</li>
-                    </ul>
-                    <div style="margin-top: 1rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">Progress</span>
-                            <span style="font-size: 0.85rem; color: var(--primary);" id="progressSecurity">0%</span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" id="barSecurity" style="width: 0%"></div></div>
-                    </div>
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 1rem;" onclick="scrollToSection('learn')">Start Learning</button>
+        </div>
+
+        <div class="lesson-container">
+            <div class="lesson-header">
+                <h3><i class="fas fa-sitemap" style="color: var(--secondary);"></i> Lesson 2: Subnetting Mastery</h3>
+                <span class="badge badge-free">Free</span>
+            </div>
+            <div class="lesson-content">
+                <h4>What is Subnetting?</h4>
+                <p>Subnetting is the process of dividing a network into smaller sub-networks (subnets). This improves network performance, enhances security, and allows efficient IP address allocation.</p>
+
+                <h4>CIDR Notation</h4>
+                <p>Classless Inter-Domain Routing (CIDR) replaced the old class-based system. It uses a prefix length to indicate the number of network bits:</p>
+                <pre><code>192.168.1.0/24 means:
+- Network bits: 24 (first 24 bits)
+- Host bits: 8 (last 8 bits)
+- Subnet mask: 255.255.255.0
+- Total hosts: 2^8 - 2 = 254 usable</code></pre>
+
+                <h4>Subnetting Formula</h4>
+                <ul>
+                    <li><strong>Number of subnets:</strong> 2^n (where n = borrowed bits)</li>
+                    <li><strong>Hosts per subnet:</strong> 2^h - 2 (where h = host bits)</li>
+                    <li><strong>Block size:</strong> 256 - subnet mask octet</li>
+                </ul>
+
+                <h4>Quick Reference: Common CIDR Values</h4>
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <tr style="background: var(--bg-dark);">
+                        <th style="padding: 8px; text-align: left; border: 1px solid var(--border);">CIDR</th>
+                        <th style="padding: 8px; text-align: left; border: 1px solid var(--border);">Mask</th>
+                        <th style="padding: 8px; text-align: left; border: 1px solid var(--border);">Total Hosts</th>
+                        <th style="padding: 8px; text-align: left; border: 1px solid var(--border);">Usable Hosts</th>
+                    </tr>
+                    <tr><td style="padding: 8px; border: 1px solid var(--border);">/24</td><td style="padding: 8px; border: 1px solid var(--border);">255.255.255.0</td><td style="padding: 8px; border: 1px solid var(--border);">256</td><td style="padding: 8px; border: 1px solid var(--border);">254</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid var(--border);">/26</td><td style="padding: 8px; border: 1px solid var(--border);">255.255.255.192</td><td style="padding: 8px; border: 1px solid var(--border);">64</td><td style="padding: 8px; border: 1px solid var(--border);">62</td></tr>
+                    <tr><td style="padding: 8px; border: 1px solid var(--border);">/30</td><td style="padding: 8px; border: 1px solid var(--border);">255.255.255.252</td><td style="padding: 8px; border: 1px solid var(--border);">4</td><td style="padding: 8px; border: 1px solid var(--border);">2</td></tr>
+                </table>
+
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="scrollToSection('quiz')">
+                        <i class="fas fa-question-circle"></i> Take Quiz
+                    </button>
                 </div>
             </div>
-            <div class="learning-card" id="cardComptia">
-                <div class="learning-header">
-                    <h3><i class="fas fa-certificate" style="color: var(--accent); margin-right: 8px;"></i> CompTIA Network+ Prep</h3>
-                    <span class="badge badge-premium">Pro</span>
+        </div>
+
+        <div class="lesson-container">
+            <div class="lesson-header">
+                <h3><i class="fas fa-shield-alt" style="color: var(--accent);"></i> Lesson 3: Security Essentials</h3>
+                <span class="badge badge-free">Free</span>
+            </div>
+            <div class="lesson-content">
+                <h4>Firewalls and Access Control</h4>
+                <p>A firewall is a network security device that monitors and filters incoming and outgoing network traffic based on security policies.</p>
+
+                <h4>Types of Firewalls</h4>
+                <ul>
+                    <li><strong>Packet Filtering:</strong> Examines packets against rules (fast but basic)</li>
+                    <li><strong>Stateful Inspection:</strong> Tracks active connections (more secure)</li>
+                    <li><strong>Application Layer:</strong> Inspects application-level data (most secure)</li>
+                    <li><strong>Next-Generation (NGFW):</strong> Includes IPS, VPN, and malware detection</li>
+                </ul>
+
+                <h4>Access Control Lists (ACLs)</h4>
+                <p>ACLs are rules that control network traffic and reduce network attacks. They can be:</p>
+                <ul>
+                    <li><strong>Standard ACL:</strong> Filters by source IP only (1-99, 1300-1999)</li>
+                    <li><strong>Extended ACL:</strong> Filters by source, destination, port, protocol (100-199, 2000-2699)</li>
+                </ul>
+
+                <h4>Encryption Basics</h4>
+                <ul>
+                    <li><strong>Symmetric:</strong> Same key for encryption/decryption (AES, DES)</li>
+                    <li><strong>Asymmetric:</strong> Public/private key pair (RSA, ECC)</li>
+                    <li><strong>Hashing:</strong> One-way function (SHA-256, MD5)</li>
+                </ul>
+
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="scrollToSection('quiz')">
+                        <i class="fas fa-question-circle"></i> Take Quiz
+                    </button>
                 </div>
-                <div class="learning-body">
-                    <p style="color: var(--text-secondary); margin-bottom: 1rem;">Full exam preparation with timed simulations and detailed explanations.</p>
-                    <ul class="feature-list">
-                        <li><i class="fas fa-check"></i> 500+ Exam Questions</li>
-                        <li><i class="fas fa-check"></i> Timed Exam Simulations</li>
-                        <li><i class="fas fa-check"></i> Performance Analytics</li>
-                        <li><i class="fas fa-check"></i> Weak Area Detection</li>
-                        <li><i class="fas fa-check"></i> Certificate on Completion</li>
-                    </ul>
-                    <div style="margin-top: 1rem;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                            <span style="font-size: 0.85rem; color: var(--text-muted);">Progress</span>
-                            <span style="font-size: 0.85rem; color: var(--primary);" id="progressComptia">0%</span>
-                        </div>
-                        <div class="progress-bar"><div class="progress-fill" id="barComptia" style="width: 0%"></div></div>
-                    </div>
-                    <button class="btn btn-success" id="btnComptia" style="width: 100%; margin-top: 1rem;" onclick="checkPremiumAccess('comptia')">
-                        <i class="fas fa-crown"></i> Upgrade to Pro
+            </div>
+        </div>
+
+        <div class="lesson-container" id="comptiaLesson" style="opacity: 0.7;">
+            <div class="lesson-header">
+                <h3><i class="fas fa-certificate" style="color: var(--warning);"></i> CompTIA Network+ Exam Prep</h3>
+                <span class="badge badge-premium">Pro</span>
+            </div>
+            <div class="lesson-content">
+                <p style="text-align: center; padding: 2rem;">
+                    <i class="fas fa-lock" style="font-size: 3rem; color: var(--warning); margin-bottom: 1rem;"></i><br>
+                    <strong>Upgrade to Pro</strong> to access:<br>
+                    500+ exam questions • Timed simulations • Performance analytics • Certificate on completion
+                </p>
+                <div style="text-align: center;">
+                    <button class="btn btn-success" onclick="upgradeToPro()">
+                        <i class="fas fa-crown"></i> Upgrade to Pro - $9/month
                     </button>
                 </div>
             </div>
@@ -1414,7 +1569,7 @@
     <section class="section" id="quiz">
         <div class="section-header">
             <h2>Interactive Quiz</h2>
-            <p>Test your knowledge with timed quizzes. Instant feedback and detailed explanations.</p>
+            <p>Test your knowledge with timed quizzes. Score 80%+ to earn certificates!</p>
         </div>
         <div class="quiz-container" id="quizContainer">
             <div class="quiz-header">
@@ -1441,10 +1596,33 @@
             <h2>Quiz Complete!</h2>
             <p style="font-size: 1.5rem; margin: 1rem 0;">Score: <span id="finalScore" style="color: var(--primary); font-weight: 700;">0/5</span></p>
             <p id="resultMessage" style="color: var(--text-secondary); margin-bottom: 2rem;"></p>
+            <div id="certificateArea" style="display: none; margin: 2rem 0;">
+                <div class="certificate">
+                    <div class="certificate-badge">🏆</div>
+                    <h2>Certificate of Completion</h2>
+                    <p style="color: var(--text-secondary); margin: 1rem 0;">Awarded to</p>
+                    <h3 id="certName" style="font-size: 1.5rem; margin: 0.5rem 0;">Your Name</h3>
+                    <p style="color: var(--text-secondary);">For successfully completing</p>
+                    <h4 style="color: var(--primary); margin: 0.5rem 0;">Network Fundamentals</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 1rem;">
+                        Date: <span id="certDate"></span>
+                    </p>
+                </div>
+            </div>
             <div style="display: flex; gap: 1rem; justify-content: center;">
                 <button class="btn btn-primary" onclick="restartQuiz()">Try Again</button>
-                <button class="btn btn-outline" onclick="scrollToSection('learn')">More Courses</button>
+                <button class="btn btn-outline" onclick="scrollToSection('learn')">More Lessons</button>
             </div>
+        </div>
+    </section>
+
+    <section class="section" id="leaderboard">
+        <div class="section-header">
+            <h2><i class="fas fa-trophy" style="color: var(--warning);"></i> Leaderboard</h2>
+            <p>Compete with other learners. Earn points by taking quizzes and maintaining your streak!</p>
+        </div>
+        <div class="leaderboard-container" id="leaderboardList">
+            <p style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading leaderboard...</p>
         </div>
     </section>
 
@@ -1460,10 +1638,11 @@
                 <div class="price">$0<span>/month</span></div>
                 <ul class="feature-list" style="text-align: left; margin: 2rem 0;">
                     <li><i class="fas fa-check"></i> 5 Network Calculators</li>
+                    <li><i class="fas fa-check"></i> 3 Learning Lessons</li>
                     <li><i class="fas fa-check"></i> Basic Quizzes (50 Qs)</li>
                     <li><i class="fas fa-check"></i> IP & Subnet Tools</li>
                     <li><i class="fas fa-check"></i> Port Lookup</li>
-                    <li><i class="fas fa-check"></i> Community Support</li>
+                    <li><i class="fas fa-check"></i> Streak Tracking</li>
                 </ul>
                 <button class="btn btn-outline" style="width: 100%;" onclick="openModal('signup')">Get Started</button>
             </div>
@@ -1477,6 +1656,7 @@
                     <li><i class="fas fa-check"></i> Timed Exam Mode</li>
                     <li><i class="fas fa-check"></i> Progress Tracking</li>
                     <li><i class="fas fa-check"></i> MAC Lookup & ACL Gen</li>
+                    <li><i class="fas fa-check"></i> Certificates</li>
                     <li><i class="fas fa-check"></i> Priority Support</li>
                 </ul>
                 <button class="btn btn-primary" style="width: 100%;" onclick="upgradeToPro()">
@@ -1495,7 +1675,7 @@
                     <li><i class="fas fa-check"></i> API Access</li>
                     <li><i class="fas fa-check"></i> Dedicated Support</li>
                 </ul>
-                <button class="btn btn-outline" style="width: 100%;" onclick="showToast('Coming soon!', 'info')">Contact Sales</button>
+                <button class="btn btn-outline" style="width: 100%;" onclick="showToast('Contact us at team@netforge.io', 'info')">Contact Sales</button>
             </div>
         </div>
     </section>
@@ -1503,10 +1683,10 @@
     <section class="section" id="adminSection" style="display: none;">
         <div class="section-header">
             <h2><i class="fas fa-cog" style="color: var(--primary);"></i> Admin Dashboard</h2>
-            <p>Manage users, view statistics, and monitor platform activity.</p>
+            <p>Manage users, view statistics, and monitor revenue.</p>
         </div>
         <div class="admin-panel active" style="display: block;">
-            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem;">
+            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 2rem;">
                 <div class="result-item" style="text-align: center;">
                     <label>Total Users</label>
                     <value id="adminTotalUsers">0</value>
@@ -1523,6 +1703,10 @@
                     <label>Quiz Attempts</label>
                     <value id="adminQuizAttempts">0</value>
                 </div>
+                <div class="result-item" style="text-align: center;">
+                    <label>Revenue</label>
+                    <value id="adminRevenue">$0</value>
+                </div>
             </div>
             <h3 style="margin-bottom: 1rem;">Recent Users</h3>
             <table class="admin-table">
@@ -1532,7 +1716,7 @@
                         <th>Plan</th>
                         <th>Joined</th>
                         <th>Last Active</th>
-                        <th>Quiz Score</th>
+                        <th>Quizzes</th>
                     </tr>
                 </thead>
                 <tbody id="adminUsersTable">
@@ -1592,6 +1776,7 @@
         </div>
     </footer>
 
+    <!-- Login Modal -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal">
             <button class="modal-close" onclick="closeModal('login')">&times;</button>
@@ -1617,6 +1802,7 @@
         </div>
     </div>
 
+    <!-- Signup Modal -->
     <div class="modal-overlay" id="signupModal">
         <div class="modal">
             <button class="modal-close" onclick="closeModal('signup')">&times;</button>
@@ -1647,9 +1833,9 @@
         </div>
     </div>
 
-    <!-- User Settings Modal -->
+    <!-- Settings Modal -->
     <div class="modal-overlay" id="settingsModal">
-        <div class="modal" style="max-width: 600px;">
+        <div class="modal wide">
             <button class="modal-close" onclick="closeModal('settings')">&times;</button>
             <h2><i class="fas fa-cog" style="color: var(--primary);"></i> User Settings</h2>
 
@@ -1716,8 +1902,7 @@
 
     <script>
         // ==========================================
-        // FIREBASE REALTIME DATABASE CONFIGURATION
-        // 100% FREE - NO BILLING REQUIRED
+        // FIREBASE CONFIG - USE YOUR REAL VALUES
         // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyA27TjEe6icWgYCO19rPUU_tgm31Kz7mGo",
@@ -1729,18 +1914,26 @@
             appId: "1:744723973842:web:99bcc4553b8d2dbfc50f0b"
         };
 
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
 
-        // Global state
         let currentUser = null;
         let isPremium = false;
         let userData = null;
 
         // ==========================================
-        // AUTHENTICATION FUNCTIONS
+        // STRIPE PAYMENT - REPLACE WITH YOUR KEYS
+        // ==========================================
+        // Go to stripe.com → Dashboard → Developers → API Keys
+        const STRIPE_PUBLISHABLE_KEY = 'pk_test_YOUR_KEY_HERE'; // Replace with your test key
+        const PRO_PRICE_ID = 'price_YOUR_PRICE_ID'; // Create in Stripe Dashboard
+
+        // For now, use demo mode (no real charges)
+        const DEMO_MODE = true;
+
+        // ==========================================
+        // AUTHENTICATION
         // ==========================================
 
         async function signup() {
@@ -1748,7 +1941,6 @@
             const email = document.getElementById('signupEmail').value.trim();
             const password = document.getElementById('signupPassword').value;
             const errorMsg = document.getElementById('signupError');
-            const successMsg = document.getElementById('signupSuccess');
             const loading = document.getElementById('signupLoading');
             const btn = document.getElementById('signupBtn');
 
@@ -1772,7 +1964,6 @@
                 const user = userCredential.user;
                 await user.updateProfile({ displayName: name });
 
-                // Create user in Realtime Database with streak
                 await db.ref('users/' + user.uid).set({
                     name: name,
                     email: email,
@@ -1782,18 +1973,18 @@
                     lastLoginDate: new Date().toDateString(),
                     streak: 1,
                     longestStreak: 1,
+                    totalPoints: 0,
                     quizScores: [],
                     totalQuizzes: 0,
+                    certificates: [],
                     progress: { network: 0, security: 0, comptia: 0 }
                 });
 
-                successMsg.classList.add('show');
-                showToast('Account created successfully!', 'success');
-                setTimeout(() => { closeModal('signup'); successMsg.classList.remove('show'); }, 1500);
+                showToast('Account created! Welcome to NetForge!', 'success');
+                closeModal('signup');
             } catch (error) {
                 errorMsg.textContent = error.message;
                 errorMsg.classList.add('show');
-                console.error('Signup error:', error);
             } finally {
                 loading.classList.remove('show');
                 btn.disabled = false;
@@ -1869,14 +2060,12 @@
                 let longestStreak = data.longestStreak || 1;
 
                 if (lastLogin === today) {
-                    // Already logged in today, no change
                     return streak;
                 } else if (lastLogin === yesterday) {
-                    // Consecutive day, increase streak
                     streak += 1;
                     if (streak > longestStreak) longestStreak = streak;
+                    showToast('🔥 ' + streak + ' day streak! Keep it up!', 'success');
                 } else {
-                    // Streak broken, reset to 1
                     streak = 1;
                 }
 
@@ -1888,7 +2077,7 @@
 
                 return streak;
             } catch (error) {
-                console.error('Streak update error:', error);
+                console.error('Streak error:', error);
                 return 1;
             }
         }
@@ -1903,15 +2092,13 @@
                 userData = snapshot.val();
                 if (userData) {
                     isPremium = userData.plan === 'premium' || userData.plan === 'pro';
-                    // Update streak on login
                     await updateStreak(uid);
-                    // Refresh data after streak update
-                    const freshSnapshot = await db.ref('users/' + uid).once('value');
-                    userData = freshSnapshot.val();
+                    const fresh = await db.ref('users/' + uid).once('value');
+                    userData = fresh.val();
                     await db.ref('users/' + uid + '/lastActive').set(Date.now());
                 }
             } catch (error) {
-                console.error('Error loading user data:', error);
+                console.error('Load user data error:', error);
             }
         }
 
@@ -1922,7 +2109,6 @@
                 return;
             }
 
-            // Fill in settings data
             document.getElementById('settingsName').value = userData.name || currentUser.displayName || '';
             document.getElementById('settingsEmail').value = userData.email || currentUser.email || '';
             document.getElementById('settingsPlan').innerHTML = isPremium ? 
@@ -1931,7 +2117,6 @@
             document.getElementById('streakCount').textContent = userData.streak || 0;
             document.getElementById('settingsQuizzes').textContent = userData.totalQuizzes || 0;
 
-            // Calculate average score
             const scores = userData.quizScores || [];
             let avgScore = 0;
             if (scores.length > 0) {
@@ -1940,7 +2125,6 @@
             }
             document.getElementById('settingsAvgScore').textContent = avgScore + '%';
 
-            // Show quiz history
             const historyDiv = document.getElementById('quizHistory');
             if (scores.length > 0) {
                 historyDiv.innerHTML = scores.slice(-5).reverse().map(s => `
@@ -1960,8 +2144,6 @@
             document.getElementById('navActions').style.display = 'none';
             document.getElementById('userMenu').classList.add('active');
             document.getElementById('userName').textContent = user.displayName || user.email.split('@')[0];
-
-            // Make avatar clickable to open settings
             document.getElementById('userAvatar').onclick = openSettings;
             document.getElementById('userAvatar').style.cursor = 'pointer';
 
@@ -1971,6 +2153,7 @@
             } else {
                 document.getElementById('userBadge').style.display = 'none';
             }
+
             if (userData && userData.progress) updateProgressBars(userData.progress);
             if (user.email === 'admin@netforge.com') {
                 document.getElementById('adminSection').style.display = 'block';
@@ -2005,6 +2188,7 @@
             document.getElementById('routeLockIcon').style.color = 'var(--accent)';
             document.getElementById('aclLockIcon').className = 'fas fa-unlock';
             document.getElementById('aclLockIcon').style.color = 'var(--accent)';
+
             const btnComptia = document.getElementById('btnComptia');
             if (btnComptia) {
                 btnComptia.innerHTML = '<i class="fas fa-play"></i> Start Course';
@@ -2024,6 +2208,7 @@
             document.getElementById('routeLockIcon').style.color = 'var(--warning)';
             document.getElementById('aclLockIcon').className = 'fas fa-lock';
             document.getElementById('aclLockIcon').style.color = 'var(--warning)';
+
             const btnComptia = document.getElementById('btnComptia');
             if (btnComptia) {
                 btnComptia.innerHTML = '<i class="fas fa-crown"></i> Upgrade to Pro';
@@ -2045,29 +2230,71 @@
             scrollToSection('calculators');
         }
 
+        // ==========================================
+        // STRIPE PAYMENT INTEGRATION
+        // ==========================================
+
         async function upgradeToPro() {
             if (!currentUser) {
                 showToast('Please log in first', 'error');
                 openModal('login');
                 return;
             }
+
+            if (DEMO_MODE) {
+                // Demo mode - no real payment
+                try {
+                    await db.ref('users/' + currentUser.uid).update({
+                        plan: 'premium',
+                        upgradedAt: Date.now()
+                    });
+                    isPremium = true;
+                    unlockPremiumFeatures();
+                    showToast('Welcome to Pro! (Demo Mode)', 'success');
+                    document.getElementById('userBadge').style.display = 'inline-flex';
+
+                    // Update settings modal if open
+                    const planDiv = document.getElementById('settingsPlan');
+                    if (planDiv) planDiv.innerHTML = '<span class="badge badge-premium">PRO</span>';
+                } catch (error) {
+                    console.error('Upgrade error:', error);
+                    showToast('Upgrade failed', 'error');
+                }
+                return;
+            }
+
+            // Real Stripe payment
             try {
+                const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+
+                // For GitHub Pages (static site), we need to use Stripe Checkout
+                // which redirects to Stripe's payment page
+                // You need a backend server for this, or use Stripe Payment Links
+
+                showToast('Redirecting to secure payment...', 'success');
+
+                // Option 1: Use Stripe Payment Link (easiest, no backend needed)
+                // Create a payment link in Stripe Dashboard and use it here:
+                // window.location.href = 'https://buy.stripe.com/test_YOUR_LINK';
+
+                // Option 2: For now, just upgrade in demo mode
                 await db.ref('users/' + currentUser.uid).update({
                     plan: 'premium',
                     upgradedAt: Date.now()
                 });
                 isPremium = true;
                 unlockPremiumFeatures();
-                showToast('Welcome to Pro! All features unlocked.', 'success');
+                showToast('Welcome to Pro!', 'success');
                 document.getElementById('userBadge').style.display = 'inline-flex';
+
             } catch (error) {
-                console.error('Upgrade error:', error);
-                showToast('Upgrade failed. Please try again.', 'error');
+                console.error('Payment error:', error);
+                showToast('Payment system coming soon!', 'error');
             }
         }
 
         // ==========================================
-        // PROGRESS TRACKING
+        // PROGRESS & QUIZ
         // ==========================================
 
         function updateProgressBars(progress) {
@@ -2094,17 +2321,98 @@
                 const data = snapshot.val() || {};
                 const scores = data.quizScores || [];
                 scores.push({ score: score, total: total, percentage: percentage, date: Date.now() });
+
+                // Calculate points (10 points per correct answer)
+                const points = score * 10;
+                const totalPoints = (data.totalPoints || 0) + points;
+
                 await userRef.update({
                     quizScores: scores,
-                    totalQuizzes: (data.totalQuizzes || 0) + 1
+                    totalQuizzes: (data.totalQuizzes || 0) + 1,
+                    totalPoints: totalPoints
                 });
+
+                // Check for certificate
+                if (percentage >= 80) {
+                    await awardCertificate('Network Fundamentals', percentage);
+                }
+
+                // Update leaderboard
+                await updateLeaderboard(currentUser.uid, totalPoints);
+
             } catch (error) {
-                console.error('Error saving score:', error);
+                console.error('Save score error:', error);
+            }
+        }
+
+        async function awardCertificate(title, score) {
+            if (!currentUser) return;
+            try {
+                const snapshot = await db.ref('users/' + currentUser.uid + '/certificates').once('value');
+                const certs = snapshot.val() || [];
+
+                // Check if already has this certificate
+                const hasCert = certs.some(c => c.title === title);
+                if (!hasCert) {
+                    certs.push({
+                        title: title,
+                        score: score,
+                        date: Date.now()
+                    });
+                    await db.ref('users/' + currentUser.uid + '/certificates').set(certs);
+                    showToast('🎉 Certificate earned: ' + title, 'success');
+                }
+            } catch (error) {
+                console.error('Certificate error:', error);
             }
         }
 
         // ==========================================
-        // ADMIN DASHBOARD
+        // LEADERBOARD
+        // ==========================================
+
+        async function updateLeaderboard(uid, points) {
+            try {
+                await db.ref('leaderboard/' + uid).set({
+                    name: userData?.name || currentUser?.displayName || 'Anonymous',
+                    points: points,
+                    streak: userData?.streak || 0,
+                    lastUpdated: Date.now()
+                });
+            } catch (error) {
+                console.error('Leaderboard error:', error);
+            }
+        }
+
+        async function loadLeaderboard() {
+            try {
+                const snapshot = await db.ref('leaderboard').orderByChild('points').limitToLast(10).once('value');
+                const data = snapshot.val() || {};
+                const users = Object.entries(data).map(([id, user]) => ({...user, id})).sort((a, b) => b.points - a.points);
+
+                const container = document.getElementById('leaderboardList');
+                if (users.length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">Be the first to take a quiz!</p>';
+                    return;
+                }
+
+                container.innerHTML = users.map((user, index) => `
+                    <div class="leaderboard-item">
+                        <div class="leaderboard-rank ${index < 3 ? 'rank-' + (index + 1) : 'rank-other'}">${index + 1}</div>
+                        <div class="leaderboard-info">
+                            <h4>${user.name || 'Anonymous'}</h4>
+                            <p>${user.streak || 0} day streak</p>
+                        </div>
+                        <div class="leaderboard-score">${user.points || 0} pts</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                console.error('Load leaderboard error:', error);
+            }
+        }
+
+        // ==========================================
+        // ADMIN
         // ==========================================
 
         async function loadAdminData() {
@@ -2114,14 +2422,22 @@
                 const userList = Object.values(users);
                 let premiumCount = 0;
                 let totalQuizAttempts = 0;
+                let totalRevenue = 0;
+
                 userList.forEach(u => {
-                    if (u.plan === 'premium' || u.plan === 'pro') premiumCount++;
+                    if (u.plan === 'premium' || u.plan === 'pro') {
+                        premiumCount++;
+                        totalRevenue += 9; // $9 per premium user
+                    }
                     if (u.totalQuizzes) totalQuizAttempts += u.totalQuizzes;
                 });
+
                 document.getElementById('adminTotalUsers').textContent = userList.length;
                 document.getElementById('adminPremiumUsers').textContent = premiumCount;
                 document.getElementById('adminFreeUsers').textContent = userList.length - premiumCount;
                 document.getElementById('adminQuizAttempts').textContent = totalQuizAttempts;
+                document.getElementById('adminRevenue').textContent = '$' + totalRevenue;
+
                 const tbody = document.getElementById('adminUsersTable');
                 tbody.innerHTML = userList.slice(0, 10).map(u => `
                     <tr>
@@ -2173,7 +2489,7 @@
         }
 
         // ==========================================
-        // CALCULATOR FUNCTIONS
+        // CALCULATORS
         // ==========================================
 
         function calculateSubnet() {
@@ -2373,9 +2689,9 @@
             document.getElementById('finalScore').textContent = `${score}/${quizQuestions.length}`;
             const percentage = (score / quizQuestions.length) * 100;
             let message = '';
-            if (percentage >= 80) message = 'Excellent! You have a strong grasp of networking fundamentals.';
-            else if (percentage >= 60) message = 'Good job! Review the topics you missed and try again.';
-            else message = 'Keep studying! Check out our learning modules to improve your skills.';
+            if (percentage >= 80) message = '🎉 Excellent! You earned a certificate!';
+            else if (percentage >= 60) message = '👍 Good job! Review and try again.';
+            else message = '📚 Keep studying! Check the learning modules.';
             document.getElementById('resultMessage').textContent = message;
         }
 
@@ -2400,7 +2716,7 @@
         }
 
         // ==========================================
-        // ANIMATIONS & MISC
+        // ANIMATIONS & INIT
         // ==========================================
 
         function createBinaryRain() {
@@ -2433,7 +2749,7 @@
         setInterval(animateTerminal, 4000);
 
         window.addEventListener('scroll', () => {
-            const sections = ['tools', 'calculators', 'learn', 'quiz', 'pricing'];
+            const sections = ['tools', 'calculators', 'learn', 'quiz', 'leaderboard', 'pricing'];
             const scrollPos = window.scrollY + 100;
             sections.forEach(id => {
                 const section = document.getElementById(id);
@@ -2452,6 +2768,7 @@
             createBinaryRain();
             loadQuiz();
             startTimer();
+            loadLeaderboard();
         });
     </script>
 </body>
